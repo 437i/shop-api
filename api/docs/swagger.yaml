@@ -1,0 +1,842 @@
+basePath: /api/v1
+definitions:
+  address.CreateRequest:
+    properties:
+      city:
+        example: Москва
+        maxLength: 255
+        type: string
+      country:
+        example: Россия
+        maxLength: 255
+        type: string
+      street:
+        example: Ленина, 10
+        maxLength: 255
+        type: string
+    required:
+    - city
+    - country
+    - street
+    type: object
+  address.Response:
+    properties:
+      city:
+        example: Москва
+        type: string
+      country:
+        example: Россия
+        type: string
+      id:
+        type: string
+      street:
+        example: Ленина, 10
+        type: string
+    type: object
+  category.CreateRequest:
+    properties:
+      name:
+        example: Холодильники
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  category.Response:
+    properties:
+      id:
+        type: string
+      name:
+        example: Холодильники
+        type: string
+    type: object
+  client.CreateRequest:
+    properties:
+      address:
+        $ref: '#/definitions/address.CreateRequest'
+      birthday:
+        example: "1986-09-12"
+        type: string
+      gender:
+        enum:
+        - m
+        - f
+        - n/a
+        example: m
+        type: string
+      name:
+        example: Иван
+        maxLength: 255
+        type: string
+      surname:
+        example: Иванов
+        maxLength: 255
+        type: string
+    required:
+    - address
+    - birthday
+    - gender
+    - name
+    - surname
+    type: object
+  client.Response:
+    properties:
+      address:
+        $ref: '#/definitions/address.Response'
+      birthday:
+        example: "1986-09-12"
+        type: string
+      gender:
+        example: m
+        type: string
+      id:
+        type: string
+      name:
+        example: Иван
+        type: string
+      registration_date:
+        example: "2026-09-12T12:00:00Z"
+        format: date-time
+        type: string
+      surname:
+        example: Иванов
+        type: string
+    type: object
+  client.UpdateAddressRequest:
+    properties:
+      address:
+        $ref: '#/definitions/address.CreateRequest'
+    type: object
+  image.CreateResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  product.CreateRequest:
+    properties:
+      available_stock:
+        example: 5
+        type: integer
+      category:
+        $ref: '#/definitions/category.CreateRequest'
+      name:
+        example: Liebherr
+        maxLength: 255
+        type: string
+      price:
+        example: "999.99"
+        type: string
+      supplier_id:
+        type: string
+    required:
+    - available_stock
+    - category
+    - name
+    - price
+    - supplier_id
+    type: object
+  product.CreateResponse:
+    properties:
+      available_stock:
+        example: 5
+        type: integer
+      category_id:
+        type: string
+      id:
+        type: string
+      image_id:
+        type: string
+      last_update_date:
+        example: "2026-09-12T12:00:00Z"
+        format: date-time
+        type: string
+      name:
+        example: Liebherr
+        type: string
+      price:
+        example: "999.99"
+        type: string
+      supplier_id:
+        type: string
+    type: object
+  product.DecreaseStockRequest:
+    properties:
+      amount:
+        example: 2
+        type: integer
+    required:
+    - amount
+    type: object
+  product.FullResponse:
+    properties:
+      available_stock:
+        example: 5
+        type: integer
+      category:
+        $ref: '#/definitions/category.Response'
+      id:
+        type: string
+      image_id:
+        type: string
+      last_update_date:
+        example: "2026-09-12T12:00:00Z"
+        format: date-time
+        type: string
+      name:
+        example: Liebherr
+        type: string
+      price:
+        example: "999.99"
+        type: string
+      supplier:
+        $ref: '#/definitions/supplier.Response'
+    type: object
+  product.ListResponse:
+    properties:
+      available_stock:
+        example: 5
+        type: integer
+      category:
+        $ref: '#/definitions/category.Response'
+      id:
+        type: string
+      image_id:
+        type: string
+      name:
+        example: Liebherr
+        type: string
+      price:
+        example: "999.99"
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        example: resource not found
+        type: string
+    type: object
+  supplier.CreateRequest:
+    properties:
+      address:
+        $ref: '#/definitions/address.CreateRequest'
+      name:
+        example: ООО Моя Оборона
+        maxLength: 255
+        type: string
+      phone_number:
+        example: "+79991234567"
+        type: string
+    required:
+    - address
+    - name
+    - phone_number
+    type: object
+  supplier.Response:
+    properties:
+      address:
+        $ref: '#/definitions/address.Response'
+      id:
+        type: string
+      name:
+        example: ООО Моя Оборона
+        type: string
+      phone_number:
+        example: "+79991234567"
+        type: string
+    type: object
+  supplier.UpdateAddressRequest:
+    properties:
+      address:
+        $ref: '#/definitions/address.CreateRequest'
+    type: object
+host: local.be3.test
+info:
+  contact: {}
+  description: REST API магазина бытовой техники
+  title: BE3 Shop API
+  version: "1.0"
+paths:
+  /clients:
+    get:
+      description: Returns all clients or filters them by name and/or surname. Supports
+        limit and offset.
+      parameters:
+      - description: Client name
+        in: query
+        name: name
+        type: string
+      - description: Client surname
+        in: query
+        name: surname
+        type: string
+      - description: Maximum items per response
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Number of items to skip
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/client.Response'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get a list of clients
+      tags:
+      - clients
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Client data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/client.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/client.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create new client
+      tags:
+      - clients
+  /clients/{id}:
+    delete:
+      parameters:
+      - description: Client ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete client by ID
+      tags:
+      - clients
+  /clients/{id}/address:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: New address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/client.UpdateAddressRequest'
+      - description: Client ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update client address
+      tags:
+      - clients
+  /images/{id}:
+    delete:
+      parameters:
+      - description: Image ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete image
+      tags:
+      - images
+    get:
+      parameters:
+      - description: Image ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Image binary data
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get image by id
+      tags:
+      - images
+    put:
+      consumes:
+      - application/octet-stream
+      parameters:
+      - description: Image ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Image bytes
+        format: binary
+        in: body
+        name: file
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Replace image
+      tags:
+      - images
+  /products:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/product.ListResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all products in stock
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/product.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create new product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete product
+      tags:
+      - products
+    get:
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.FullResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get product
+      tags:
+      - products
+  /products/{id}/image:
+    get:
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Image binary data
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get image by product id
+      tags:
+      - images
+    post:
+      consumes:
+      - application/octet-stream
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Image bytes
+        format: binary
+        in: body
+        name: file
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/image.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Add product image
+      tags:
+      - images
+  /products/{id}/stock:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Amount to decrease by
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.DecreaseStockRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Decrease product quantity in stock
+      tags:
+      - products
+  /suppliers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/supplier.Response'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get a list of all suppliers
+      tags:
+      - suppliers
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Supplier data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/supplier.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/supplier.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create new supplier
+      tags:
+      - suppliers
+  /suppliers/{id}:
+    delete:
+      parameters:
+      - description: Supplier ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete supplier by ID
+      tags:
+      - suppliers
+    get:
+      parameters:
+      - description: Supplier ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/supplier.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get supplier
+      tags:
+      - suppliers
+  /suppliers/{id}/address:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: New address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/supplier.UpdateAddressRequest'
+      - description: Supplier ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update supplier address
+      tags:
+      - suppliers
+schemes:
+- https
+swagger: "2.0"

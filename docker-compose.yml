@@ -1,0 +1,204 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: be3-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - be3
+
+  migrate:
+    build:
+      context: ./api
+      target: migrate
+    container_name: be3-migrate
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=postgres port=5432 user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} dbname=${POSTGRES_DB} sslmode=disable"
+      GOOSE_MIGRATION_DIR: /app/migrations
+    command: ["up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - be3
+
+  db-init:
+    image: postgres:18
+    container_name: be3-db-init
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+      POSTGRES_RO_USER: ${POSTGRES_RO_USER}
+      POSTGRES_RO_PASSWORD: ${POSTGRES_RO_PASSWORD}
+    volumes:
+      - ./postgres/readonly.sh:/usr/local/bin/readonly.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/readonly.sh"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    networks:
+      - be3
+
+  pgadmin:
+    image: dpage/pgadmin4:9.18
+    container_name: be3-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@be3.io
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      SCRIPT_NAME: /admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - be3
+
+  api:
+    build: 
+      context: ./api
+      target: runtime
+    container_name: be3-api
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://127.0.0.1:8080/swagger/index.html || exit 1"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - be3
+
+  api-ro-1:
+    build:
+      context: ./api
+      target: runtime
+    container_name: be3-api-ro-1
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_RO_USER}
+      DB_PASSWORD: ${POSTGRES_RO_PASSWORD}
+      PORT: "8081"
+    ports:
+      - "8081:8081"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://127.0.0.1:8081/swagger/index.html || exit 1"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - be3
+    
+  api-ro-2:
+    build:
+      context: ./api
+      target: runtime
+    container_name: be3-api-ro-2
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_RO_USER}
+      DB_PASSWORD: ${POSTGRES_RO_PASSWORD}
+      PORT: "8082"
+    ports:
+      - "8082:8082"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://127.0.0.1:8082/swagger/index.html || exit 1"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - be3
+
+  nginx:
+    image: nginx:alpine
+    container_name: be3-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./static:/usr/share/nginx/html:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      api:
+        condition: service_healthy
+      api-ro-1:
+        condition: service_healthy
+      api-ro-2:
+        condition: service_healthy
+      pgadmin:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - be3
+
+networks:
+  be3:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  nginx_cache:

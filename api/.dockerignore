@@ -1,0 +1,8 @@
+.git
+.gitignore
+.gitkeep
+.DS_Store
+.env
+Makefile
+gather.go
+project_dump.md
