@@ -2,6 +2,7 @@ package app
 
 import (
 	"be2/internal/address"
+	"be2/internal/auth"
 	"be2/internal/category"
 	"be2/internal/client"
 	"be2/internal/config"
@@ -65,6 +66,7 @@ var handlerModule = fx.Options(
 		product.NewHandler,
 		supplier.NewHandler,
 		image.NewHandler,
+		auth.NewHandler,
 	),
 )
 
@@ -75,6 +77,7 @@ var infraModule = fx.Options(
 			fx.As(new(database.Transactor)),
 		),
 		database.DBInit,
+		server.NewMiddleware,
 		server.NewRouter,
 		server.NewServer,
 	),
@@ -88,6 +91,18 @@ var configModule = fx.Options(
 		config.Load,
 		config.DB,
 		config.Server,
+		config.Auth,
+	),
+)
+
+var authModule = fx.Options(
+	fx.Provide(
+		auth.NewGRPCConn,
+		fx.Annotate(
+			auth.NewGRPCClient,
+			fx.As(new(auth.Service)),
+			fx.As(new(server.Validator)),
+		),
 	),
 )
 
@@ -95,6 +110,7 @@ var Module = fx.Options(
 	repoModule,
 	serviceModule,
 	handlerModule,
+	authModule,
 	infraModule,
 	configModule,
 )
