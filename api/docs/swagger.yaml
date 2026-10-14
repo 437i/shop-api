@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  address.CreateRequest:
+  be2_internal_address.CreateRequest:
     properties:
       city:
         example: Москва
@@ -19,7 +19,7 @@ definitions:
     - country
     - street
     type: object
-  address.Response:
+  be2_internal_address.Response:
     properties:
       city:
         example: Москва
@@ -33,7 +33,7 @@ definitions:
         example: Ленина, 10
         type: string
     type: object
-  category.CreateRequest:
+  be2_internal_category.CreateRequest:
     properties:
       name:
         example: Холодильники
@@ -42,7 +42,7 @@ definitions:
     required:
     - name
     type: object
-  category.Response:
+  be2_internal_category.Response:
     properties:
       id:
         type: string
@@ -50,10 +50,82 @@ definitions:
         example: Холодильники
         type: string
     type: object
-  client.CreateRequest:
+  be2_internal_response.ErrorResponse:
+    properties:
+      message:
+        example: resource not found
+        type: string
+    type: object
+  be2_internal_supplier.Response:
     properties:
       address:
-        $ref: '#/definitions/address.CreateRequest'
+        $ref: '#/definitions/be2_internal_address.Response'
+      id:
+        type: string
+      name:
+        example: ООО Моя Оборона
+        type: string
+      phone_number:
+        example: "+79991234567"
+        type: string
+    type: object
+  internal_auth.LoginRequest:
+    properties:
+      email:
+        example: email@example.com
+        type: string
+      password:
+        example: $ExamplePass123!
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_auth.RegisterRequest:
+    properties:
+      email:
+        example: email@example.com
+        type: string
+      name:
+        example: Иван
+        maxLength: 255
+        type: string
+      password:
+        example: $ExamplePass123!
+        minLength: 8
+        type: string
+      phone:
+        example: "+79991234567"
+        type: string
+      surname:
+        example: Иванов
+        maxLength: 255
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - phone
+    - surname
+    type: object
+  internal_auth.ResetRequest:
+    properties:
+      email:
+        example: email@example.com
+        type: string
+    required:
+    - email
+    type: object
+  internal_auth.Response:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  internal_client.CreateRequest:
+    properties:
+      address:
+        $ref: '#/definitions/be2_internal_address.CreateRequest'
       birthday:
         example: "1986-09-12"
         type: string
@@ -79,10 +151,10 @@ definitions:
     - name
     - surname
     type: object
-  client.Response:
+  internal_client.Response:
     properties:
       address:
-        $ref: '#/definitions/address.Response'
+        $ref: '#/definitions/be2_internal_address.Response'
       birthday:
         example: "1986-09-12"
         type: string
@@ -102,23 +174,23 @@ definitions:
         example: Иванов
         type: string
     type: object
-  client.UpdateAddressRequest:
+  internal_client.UpdateAddressRequest:
     properties:
       address:
-        $ref: '#/definitions/address.CreateRequest'
+        $ref: '#/definitions/be2_internal_address.CreateRequest'
     type: object
-  image.CreateResponse:
+  internal_image.CreateResponse:
     properties:
       id:
         type: string
     type: object
-  product.CreateRequest:
+  internal_product.CreateRequest:
     properties:
       available_stock:
         example: 5
         type: integer
       category:
-        $ref: '#/definitions/category.CreateRequest'
+        $ref: '#/definitions/be2_internal_category.CreateRequest'
       name:
         example: Liebherr
         maxLength: 255
@@ -135,7 +207,7 @@ definitions:
     - price
     - supplier_id
     type: object
-  product.CreateResponse:
+  internal_product.CreateResponse:
     properties:
       available_stock:
         example: 5
@@ -159,7 +231,7 @@ definitions:
       supplier_id:
         type: string
     type: object
-  product.DecreaseStockRequest:
+  internal_product.DecreaseStockRequest:
     properties:
       amount:
         example: 2
@@ -167,13 +239,13 @@ definitions:
     required:
     - amount
     type: object
-  product.FullResponse:
+  internal_product.FullResponse:
     properties:
       available_stock:
         example: 5
         type: integer
       category:
-        $ref: '#/definitions/category.Response'
+        $ref: '#/definitions/be2_internal_category.Response'
       id:
         type: string
       image_id:
@@ -189,15 +261,15 @@ definitions:
         example: "999.99"
         type: string
       supplier:
-        $ref: '#/definitions/supplier.Response'
+        $ref: '#/definitions/be2_internal_supplier.Response'
     type: object
-  product.ListResponse:
+  internal_product.ListResponse:
     properties:
       available_stock:
         example: 5
         type: integer
       category:
-        $ref: '#/definitions/category.Response'
+        $ref: '#/definitions/be2_internal_category.Response'
       id:
         type: string
       image_id:
@@ -209,16 +281,10 @@ definitions:
         example: "999.99"
         type: string
     type: object
-  response.ErrorResponse:
-    properties:
-      message:
-        example: resource not found
-        type: string
-    type: object
-  supplier.CreateRequest:
+  internal_supplier.CreateRequest:
     properties:
       address:
-        $ref: '#/definitions/address.CreateRequest'
+        $ref: '#/definitions/be2_internal_address.CreateRequest'
       name:
         example: ООО Моя Оборона
         maxLength: 255
@@ -231,10 +297,10 @@ definitions:
     - name
     - phone_number
     type: object
-  supplier.Response:
+  internal_supplier.Response:
     properties:
       address:
-        $ref: '#/definitions/address.Response'
+        $ref: '#/definitions/be2_internal_address.Response'
       id:
         type: string
       name:
@@ -244,10 +310,10 @@ definitions:
         example: "+79991234567"
         type: string
     type: object
-  supplier.UpdateAddressRequest:
+  internal_supplier.UpdateAddressRequest:
     properties:
       address:
-        $ref: '#/definitions/address.CreateRequest'
+        $ref: '#/definitions/be2_internal_address.CreateRequest'
     type: object
 host: local.be3.test
 info:
@@ -256,6 +322,35 @@ info:
   title: BE3 Shop API
   version: "1.0"
 paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
   /clients:
     get:
       description: Returns all clients or filters them by name and/or surname. Supports
@@ -286,16 +381,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/client.Response'
+              $ref: '#/definitions/internal_client.Response'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get a list of clients
       tags:
       - clients
@@ -308,22 +403,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/client.CreateRequest'
+          $ref: '#/definitions/internal_client.CreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/client.Response'
+            $ref: '#/definitions/internal_client.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Create new client
       tags:
       - clients
@@ -342,15 +437,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Delete client by ID
       tags:
       - clients
@@ -364,7 +459,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/client.UpdateAddressRequest'
+          $ref: '#/definitions/internal_client.UpdateAddressRequest'
       - description: Client ID
         format: uuid
         in: path
@@ -377,15 +472,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Update client address
       tags:
       - clients
@@ -404,15 +499,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Delete image
       tags:
       - images
@@ -434,15 +529,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get image by id
       tags:
       - images
@@ -469,15 +564,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Replace image
       tags:
       - images
@@ -490,12 +585,12 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/product.ListResponse'
+              $ref: '#/definitions/internal_product.ListResponse'
             type: array
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get all products in stock
       tags:
       - products
@@ -508,26 +603,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/product.CreateRequest'
+          $ref: '#/definitions/internal_product.CreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/product.CreateResponse'
+            $ref: '#/definitions/internal_product.CreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Create new product
       tags:
       - products
@@ -546,15 +641,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Delete product
       tags:
       - products
@@ -572,19 +667,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/product.FullResponse'
+            $ref: '#/definitions/internal_product.FullResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get product
       tags:
       - products
@@ -607,15 +702,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get image by product id
       tags:
       - images
@@ -642,19 +737,19 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/image.CreateResponse'
+            $ref: '#/definitions/internal_image.CreateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Add product image
       tags:
       - images
@@ -674,7 +769,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/product.DecreaseStockRequest'
+          $ref: '#/definitions/internal_product.DecreaseStockRequest'
       produces:
       - application/json
       responses:
@@ -683,22 +778,76 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Decrease product quantity in stock
       tags:
       - products
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_auth.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      summary: Register new user
+      tags:
+      - auth
+  /reset:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.ResetRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      summary: Reset user password
+      tags:
+      - auth
   /suppliers:
     get:
       produces:
@@ -708,12 +857,12 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/supplier.Response'
+              $ref: '#/definitions/internal_supplier.Response'
             type: array
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get a list of all suppliers
       tags:
       - suppliers
@@ -726,22 +875,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/supplier.CreateRequest'
+          $ref: '#/definitions/internal_supplier.CreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/supplier.Response'
+            $ref: '#/definitions/internal_supplier.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Create new supplier
       tags:
       - suppliers
@@ -760,15 +909,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Delete supplier by ID
       tags:
       - suppliers
@@ -786,19 +935,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/supplier.Response'
+            $ref: '#/definitions/internal_supplier.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Get supplier
       tags:
       - suppliers
@@ -812,7 +961,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/supplier.UpdateAddressRequest'
+          $ref: '#/definitions/internal_supplier.UpdateAddressRequest'
       - description: Supplier ID
         format: uuid
         in: path
@@ -825,15 +974,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Update supplier address
       tags:
       - suppliers
