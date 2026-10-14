@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "be2/gen/auth;authProto";
+
+option java_package = "auth.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "AuthProto";
+
+import "google/protobuf/empty.proto";
+
+service AuthService {
+  // Регистрация и выдача подписанного JWT.
+  rpc Register(RegisterRequest) returns (AuthResponse);
+
+  // Авторизация по email и паролю.
+  rpc Login(LoginRequest) returns (AuthResponse);
+
+  // Смена пароля аутентифицированного пользователя.
+  rpc ChangePassword(ChangePasswordRequest)
+      returns (google.protobuf.Empty);
+
+  // Восстановление пароля по email.
+  rpc ResetPassword(ResetPasswordRequest)
+      returns (google.protobuf.Empty);
+
+  // Проверка подписи и срока действия JWT.
+  rpc ValidateToken(ValidateTokenRequest)
+      returns (ValidateTokenResponse);
+}
+
+message RegisterRequest {
+  string name = 1;
+  string surname = 2;
+  string email = 3;
+  string phone = 4;
+  string password = 5;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+}
+
+message ChangePasswordRequest {
+  string token = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordRequest {
+  string email = 1;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+}
