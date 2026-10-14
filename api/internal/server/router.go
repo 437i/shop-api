@@ -1,6 +1,7 @@
 package server
 
 import (
+	"be2/internal/auth"
 	"be2/internal/client"
 	"be2/internal/image"
 	"be2/internal/product"
@@ -16,14 +17,24 @@ func NewRouter(
 	product *product.Handler,
 	supplier *supplier.Handler,
 	image *image.Handler,
+	auth *auth.Handler,
+	middleware *Middleware,
 ) *gin.Engine {
 	engine := gin.Default()
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1 := engine.Group("/api/v1")
+	{
+		v1.POST("/register", auth.Register)
+		v1.POST("/auth", auth.Auth)
+		v1.POST("/reset", auth.Reset)
+	}
 
-	clients := v1.Group("/clients")
+	protected := engine.Group("/api/v1")
+	protected.Use(middleware.auth)
+
+	clients := protected.Group("/clients")
 	{
 		clients.POST("", client.Create)
 		clients.GET("", client.GetList)
@@ -31,7 +42,7 @@ func NewRouter(
 		clients.PATCH("/:id/address", client.UpdateAddress)
 	}
 
-	products := v1.Group("/products")
+	products := protected.Group("/products")
 	{
 		products.POST("", product.Create)
 		products.GET("", product.GetAll)
@@ -42,7 +53,7 @@ func NewRouter(
 		products.PATCH("/:id/stock", product.DecreaseStock)
 	}
 
-	suppliers := v1.Group("/suppliers")
+	suppliers := protected.Group("/suppliers")
 	{
 		suppliers.POST("", supplier.Create)
 		suppliers.GET("", supplier.GetAll)
@@ -51,7 +62,7 @@ func NewRouter(
 		suppliers.PATCH("/:id/address", supplier.UpdateAddress)
 	}
 
-	images := v1.Group("/images")
+	images := protected.Group("/images")
 	{
 		images.GET("/:id", image.GetByID)
 		images.PUT("/:id", image.Change)
