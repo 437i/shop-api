@@ -59,6 +59,7 @@ func DBInit(lc fx.Lifecycle, cfg config.DBConfig) (*pgxpool.Pool, error) {
 			return nil
 		},
 		OnStop: func(context.Context) error {
+			log.Println("db connection pool closing")
 			pool.Close()
 			return nil
 		},
