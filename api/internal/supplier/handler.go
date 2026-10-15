@@ -26,16 +26,17 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// Create создать поставщика
-// @Summary Create new supplier
-// @Tags 	suppliers
-// @Accept 	json
-// @Produce json
-// @Param 	request body CreateRequest true "Supplier data"
-// @Success 201 {object} Response
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/suppliers [post]
+// Create 	 создать поставщика
+// @Summary  Create new supplier
+// @Tags 	 suppliers
+// @Accept 	 json
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 request body CreateRequest true "Supplier data"
+// @Success  201 {object} Response
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /suppliers [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateRequest
 
@@ -66,16 +67,17 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 // UpdateAddress обновляет адрес поставщика
-// @Summary Update supplier address
-// @Tags 	suppliers
-// @Accept 	json
-// @Param 	request body UpdateAddressRequest true "New address"
-// @Param 	id 		path string 			  true "Supplier ID" format(uuid)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/suppliers/{id}/address [patch]
+// @Summary  Update supplier address
+// @Tags 	 suppliers
+// @Accept 	 json
+// @Security BearerAuth
+// @Param 	 request body UpdateAddressRequest true "New address"
+// @Param 	 id 	 path string 			   true "Supplier ID" format(uuid)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /suppliers/{id}/address [patch]
 func (h *Handler) UpdateAddress(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -107,15 +109,16 @@ func (h *Handler) UpdateAddress(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// Delete удаляет поставщика
-// @Summary Delete supplier by ID
-// @Tags 	suppliers
-// @Param 	id path string true "Supplier ID" format(uuid)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/suppliers/{id} [delete]
+// Delete 	 удаляет поставщика
+// @Summary  Delete supplier by ID
+// @Tags 	 suppliers
+// @Security BearerAuth
+// @Param 	 id path string true "Supplier ID" format(uuid)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /suppliers/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -132,13 +135,14 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// GetAll получить всех поставщиков
-// @Summary Get a list of all suppliers
-// @Tags 	suppliers
-// @Produce json
-// @Success 200 {array}  Response
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/suppliers [get]
+// GetAll 	 получить всех поставщиков
+// @Summary  Get a list of all suppliers
+// @Tags 	 suppliers
+// @Produce  json
+// @Security BearerAuth
+// @Success  200 {array}  Response
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /suppliers [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	suppliers, err := h.service.GetAll(c.Request.Context())
 	if err != nil {
@@ -150,16 +154,17 @@ func (h *Handler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, ToListResponse(suppliers))
 }
 
-// GetByID получить поставщика
-// @Summary Get supplier
-// @Tags 	suppliers
-// @Produce json
-// @Param 	id path string true "Supplier ID" format(uuid)
-// @Success 200 {object} Response
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/suppliers/{id} [get]
+// GetByID 	 получить поставщика
+// @Summary  Get supplier
+// @Tags 	 suppliers
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 id path string true "Supplier ID" format(uuid)
+// @Success  200 {object} Response
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /suppliers/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {

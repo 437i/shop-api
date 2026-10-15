@@ -1,7 +1,4 @@
 {
-    "schemes": [
-        "https"
-    ],
     "swagger": "2.0",
     "info": {
         "description": "REST API магазина бытовой техники",
@@ -9,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "local.be3.test",
     "basePath": "/api/v1",
     "paths": {
         "/auth": {
@@ -59,6 +55,11 @@
         },
         "/clients": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns all clients or filters them by name and/or surname. Supports limit and offset.",
                 "produces": [
                     "application/json"
@@ -120,6 +121,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -165,6 +171,11 @@
         },
         "/clients/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "clients"
                 ],
@@ -206,6 +217,11 @@
         },
         "/clients/{id}/address": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -259,6 +275,11 @@
         },
         "/images/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -304,6 +325,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/octet-stream"
                 ],
@@ -356,6 +382,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "images"
                 ],
@@ -397,6 +428,11 @@
         },
         "/products": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -423,6 +459,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -474,6 +515,11 @@
         },
         "/products/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -519,6 +565,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "products"
                 ],
@@ -560,6 +611,11 @@
         },
         "/products/{id}/image": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -605,6 +661,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/octet-stream"
                 ],
@@ -665,6 +726,11 @@
         },
         "/products/{id}/stock": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -811,6 +877,11 @@
         },
         "/suppliers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -837,6 +908,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -882,6 +958,11 @@
         },
         "/suppliers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -927,6 +1008,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "suppliers"
                 ],
@@ -968,6 +1054,11 @@
         },
         "/suppliers/{id}/address": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1463,6 +1554,13 @@
                     "$ref": "#/definitions/be2_internal_address.CreateRequest"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

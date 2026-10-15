@@ -26,17 +26,18 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// Create 	создает новый товар
-// @Summary Create new product
-// @Tags 	products
-// @Accept 	json
-// @Produce json
-// @Param 	request body CreateRequest true "Product data"
-// @Success 201 {object} CreateResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products [post]
+// Create 	 создает новый товар
+// @Summary  Create new product
+// @Tags 	 products
+// @Accept 	 json
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 request body CreateRequest true "Product data"
+// @Success  201 {object} CreateResponse
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateRequest
 
@@ -73,18 +74,19 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 // DecreaseStock уменьшает количество товара
-// @Summary Decrease product quantity in stock
-// @Tags 	products
-// @Accept 	json
-// @Produce json
-// @Param 	id 		path string 			  true "Product ID" format(uuid)
-// @Param 	request body DecreaseStockRequest true "Amount to decrease by"
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 409 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products/{id}/stock [patch]
+// @Summary  Decrease product quantity in stock
+// @Tags 	 products
+// @Accept 	 json
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 id 	 path string 			   true "Product ID" format(uuid)
+// @Param 	 request body DecreaseStockRequest true "Amount to decrease by"
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  409 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products/{id}/stock [patch]
 func (h *Handler) DecreaseStock(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -108,16 +110,17 @@ func (h *Handler) DecreaseStock(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// GetByID 	получить товар
-// @Summary Get product
-// @Tags 	products
-// @Produce json
-// @Param 	id path string true "Product ID" format(uuid)
-// @Success 200 {object} FullResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products/{id} [get]
+// GetByID 	 получить товар
+// @Summary  Get product
+// @Tags 	 products
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 id path string true "Product ID" format(uuid)
+// @Success  200 {object} FullResponse
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -135,13 +138,14 @@ func (h *Handler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, ToFullResponse(product))
 }
 
-// GetAll 	получить все доступные товары
-// @Summary Get all products in stock
-// @Tags 	products
-// @Produce json
-// @Success 200 {array} ListResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products [get]
+// GetAll 	 получить все доступные товары
+// @Summary  Get all products in stock
+// @Tags 	 products
+// @Produce  json
+// @Security BearerAuth
+// @Success  200 {array} ListResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products [get]
 func (h *Handler) GetAll(c *gin.Context) {
 	products, err := h.service.GetAll(c.Request.Context())
 	if err != nil {
@@ -153,15 +157,16 @@ func (h *Handler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, ToListResponse(products))
 }
 
-// Delete 	удалить товар
-// @Summary Delete product
-// @Tags 	products
-// @Param 	id path string true "Product ID" format(uuid)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products/{id} [delete]
+// Delete 	 удалить товар
+// @Summary  Delete product
+// @Tags 	 products
+// @Security BearerAuth
+// @Param 	 id path string true "Product ID" format(uuid)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {

@@ -8,14 +8,15 @@ import (
 	"go.uber.org/fx"
 )
 
-// @title BE3 Shop API
-// @version 1.0
+// @title 		BE3 Shop API
+// @version 	1.0
 // @description REST API магазина бытовой техники
-// @host local.be3.test
-// @BasePath /api/v1
-// @schemes https
+// @BasePath 	/api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in                         header
+// @name                       Authorization
 func main() {
 	_ = godotenv.Load()
 
-	fx.New(app.Module).Run()
+	fx.New(app.MockModule).Run()
 }

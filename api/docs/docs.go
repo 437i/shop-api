@@ -62,6 +62,11 @@ const docTemplate = `{
         },
         "/clients": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns all clients or filters them by name and/or surname. Supports limit and offset.",
                 "produces": [
                     "application/json"
@@ -123,6 +128,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -168,6 +178,11 @@ const docTemplate = `{
         },
         "/clients/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "clients"
                 ],
@@ -209,6 +224,11 @@ const docTemplate = `{
         },
         "/clients/{id}/address": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -262,6 +282,11 @@ const docTemplate = `{
         },
         "/images/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -307,6 +332,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/octet-stream"
                 ],
@@ -359,6 +389,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "images"
                 ],
@@ -400,6 +435,11 @@ const docTemplate = `{
         },
         "/products": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -426,6 +466,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -477,6 +522,11 @@ const docTemplate = `{
         },
         "/products/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -522,6 +572,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "products"
                 ],
@@ -563,6 +618,11 @@ const docTemplate = `{
         },
         "/products/{id}/image": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -608,6 +668,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/octet-stream"
                 ],
@@ -668,6 +733,11 @@ const docTemplate = `{
         },
         "/products/{id}/stock": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -814,6 +884,11 @@ const docTemplate = `{
         },
         "/suppliers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -840,6 +915,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -885,6 +965,11 @@ const docTemplate = `{
         },
         "/suppliers/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -930,6 +1015,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "suppliers"
                 ],
@@ -971,6 +1061,11 @@ const docTemplate = `{
         },
         "/suppliers/{id}/address": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1467,15 +1562,22 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "local.be3.test",
+	Host:             "",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"https"},
+	Schemes:          []string{},
 	Title:            "BE3 Shop API",
 	Description:      "REST API магазина бытовой техники",
 	InfoInstanceName: "swagger",

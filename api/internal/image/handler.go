@@ -28,18 +28,19 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// Create создает изображение для товара
-// @Summary Add product image
-// @Tags 	images
-// @Accept 	octet-stream
-// @Produce json
-// @Param 	id 	 path string true "Product ID"  format(uuid)
-// @Param 	file body string true "Image bytes" format(binary)
-// @Success 201 {object} CreateResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router  /products/{id}/image [post]
+// Create 	 создает изображение для товара
+// @Summary  Add product image
+// @Tags 	 images
+// @Accept 	 octet-stream
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 id	  path string true "Product ID"  format(uuid)
+// @Param 	 file body string true "Image bytes" format(binary)
+// @Success  201 {object} CreateResponse
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router   /products/{id}/image [post]
 func (h *Handler) Create(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -70,17 +71,18 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, ToCreateResponse(img))
 }
 
-// Change заменяет изображение
-// @Summary Replace image
-// @Tags 	images
-// @Accept 	octet-stream
-// @Param 	id 	 path string true "Image ID"    format(uuid)
-// @Param 	file body string true "Image bytes" format(binary)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/images/{id} [put]
+// Change 	 заменяет изображение
+// @Summary  Replace image
+// @Tags 	 images
+// @Accept 	 octet-stream
+// @Security BearerAuth
+// @Param 	 id   path string true "Image ID"    format(uuid)
+// @Param 	 file body string true "Image bytes" format(binary)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /images/{id} [put]
 func (h *Handler) Change(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -110,15 +112,16 @@ func (h *Handler) Change(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// Delete удаляет изображение
-// @Summary Delete image
-// @Tags 	images
-// @Param 	id path string true "Image ID" format(uuid)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/images/{id} [delete]
+// Delete 	 удаляет изображение
+// @Summary  Delete image
+// @Tags 	 images
+// @Security BearerAuth
+// @Param 	 id path string true "Image ID" format(uuid)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /images/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -135,16 +138,17 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// GetByID получить изображение по его uuid
-// @Summary Get image by id
-// @Tags 	images
-// @Produce octet-stream
-// @Param 	id path string true "Image ID" format(uuid)
-// @Success 200 {string} string "Image binary data"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /images/{id} [get]
+// GetByID 	 получить изображение по его uuid
+// @Summary  Get image by id
+// @Tags 	 images
+// @Produce  octet-stream
+// @Security BearerAuth
+// @Param 	 id path string true "Image ID" format(uuid)
+// @Success  200 {string} string "Image binary data"
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router   /images/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -164,15 +168,16 @@ func (h *Handler) GetByID(c *gin.Context) {
 }
 
 // GetByProductID получить изображение по uuid товара
-// @Summary Get image by product id
-// @Tags 	images
-// @Produce octet-stream
-// @Param 	id path string true "Product ID" format(uuid)
-// @Success 200 {string} string "Image binary data"
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/products/{id}/image [get]
+// @Summary  Get image by product id
+// @Tags 	 images
+// @Produce  octet-stream
+// @Security BearerAuth
+// @Param 	 id path string true "Product ID" format(uuid)
+// @Success  200 {string} string "Image binary data"
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /products/{id}/image [get]
 func (h *Handler) GetByProductID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {

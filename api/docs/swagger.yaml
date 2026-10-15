@@ -315,7 +315,6 @@ definitions:
       address:
         $ref: '#/definitions/be2_internal_address.CreateRequest'
     type: object
-host: local.be3.test
 info:
   contact: {}
   description: REST API магазина бытовой техники
@@ -391,6 +390,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get a list of clients
       tags:
       - clients
@@ -419,6 +420,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create new client
       tags:
       - clients
@@ -446,6 +449,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete client by ID
       tags:
       - clients
@@ -481,6 +486,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Update client address
       tags:
       - clients
@@ -508,6 +515,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete image
       tags:
       - images
@@ -538,6 +547,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get image by id
       tags:
       - images
@@ -573,6 +584,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Replace image
       tags:
       - images
@@ -591,6 +604,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get all products in stock
       tags:
       - products
@@ -623,6 +638,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create new product
       tags:
       - products
@@ -650,6 +667,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete product
       tags:
       - products
@@ -680,6 +699,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get product
       tags:
       - products
@@ -711,6 +732,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get image by product id
       tags:
       - images
@@ -750,6 +773,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Add product image
       tags:
       - images
@@ -791,6 +816,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Decrease product quantity in stock
       tags:
       - products
@@ -863,6 +890,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get a list of all suppliers
       tags:
       - suppliers
@@ -891,6 +920,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create new supplier
       tags:
       - suppliers
@@ -918,6 +949,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete supplier by ID
       tags:
       - suppliers
@@ -948,6 +981,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get supplier
       tags:
       - suppliers
@@ -983,9 +1018,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Update supplier address
       tags:
       - suppliers
-schemes:
-- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

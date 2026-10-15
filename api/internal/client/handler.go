@@ -25,16 +25,17 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service}
 }
 
-// Create 	создает нового клиента
-// @Summary Create new client
-// @Tags 	clients
-// @Accept 	json
-// @Produce json
-// @Param 	request body CreateRequest true "Client data"
-// @Success 201 {object} Response
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/clients [post]
+// Create 	 создает нового клиента
+// @Summary  Create new client
+// @Tags 	 clients
+// @Accept 	 json
+// @Produce  json
+// @Security BearerAuth
+// @Param 	 request body CreateRequest true "Client data"
+// @Success  201 {object} Response
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /clients [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req CreateRequest
 
@@ -70,15 +71,16 @@ func (h *Handler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, ToResponse(created, addr))
 }
 
-// Delete 	удаляет клиента
-// @Summary Delete client by ID
-// @Tags 	clients
-// @Param 	id path string true "Client ID" format(uuid)
-// @Success 204
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router 	/clients/{id} [delete]
+// Delete 	 удаляет клиента
+// @Summary  Delete client by ID
+// @Tags 	 clients
+// @Security BearerAuth
+// @Param 	 id path string true "Client ID" format(uuid)
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  404 {object} response.ErrorResponse
+// @Failure  500 {object} response.ErrorResponse
+// @Router 	 /clients/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil || id == uuid.Nil {
@@ -100,6 +102,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Description Returns all clients or filters them by name and/or surname. Supports limit and offset.
 // @Tags 		clients
 // @Produce 	json
+// @Security 	BearerAuth
 // @Param 		name 	query string false "Client name"
 // @Param 		surname query string false "Client surname"
 // @Param 		limit 	query int 	 false "Maximum items per response" minimum(1)
@@ -130,6 +133,7 @@ func (h *Handler) GetList(c *gin.Context) {
 // @Summary 	 Update client address
 // @Tags 		 clients
 // @Accept 		 json
+// @Security 	 BearerAuth
 // @Param 		 request body UpdateAddressRequest true "New address"
 // @Param 		 id 	 path string 			   true "Client ID" format(uuid)
 // @Success 	 204
