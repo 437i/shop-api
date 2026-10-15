@@ -1,0 +1,7 @@
+backend_request — выполнить разрешённый GET или HEAD и вывести статус, заголовки и ответ;
+
+backend_recent_logs — получить последние логи выбранного сервиса;
+
+backend_openapi_search — найти контракт существующего эндпоинта;
+
+backend_db_list_tables, backend_db_describe_table, backend_db_sample_rows — посмотреть схему и ограниченное количество строк PostgreSQL.
