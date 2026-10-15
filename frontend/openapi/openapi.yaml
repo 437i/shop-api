@@ -1,0 +1,1141 @@
+openapi: 3.0.0
+info:
+  contact: {}
+  description: REST API магазина бытовой техники
+  title: BE3 Shop API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_auth.LoginRequest"
+        description: Credentials
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_auth.Response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      summary: Login user
+      tags:
+        - auth
+  /clients:
+    get:
+      description: Returns all clients or filters them by name and/or surname.
+        Supports limit and offset.
+      parameters:
+        - description: Client name
+          in: query
+          name: name
+          schema:
+            type: string
+        - description: Client surname
+          in: query
+          name: surname
+          schema:
+            type: string
+        - description: Maximum items per response
+          in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+        - description: Number of items to skip
+          in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/internal_client.Response"
+                type: array
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get a list of clients
+      tags:
+        - clients
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_client.CreateRequest"
+        description: Client data
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_client.Response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Create new client
+      tags:
+        - clients
+  "/clients/{id}":
+    delete:
+      parameters:
+        - description: Client ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Delete client by ID
+      tags:
+        - clients
+  "/clients/{id}/address":
+    patch:
+      parameters:
+        - description: Client ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_client.UpdateAddressRequest"
+        description: New address
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Update client address
+      tags:
+        - clients
+  "/images/{id}":
+    delete:
+      parameters:
+        - description: Image ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Delete image
+      tags:
+        - images
+    get:
+      parameters:
+        - description: Image ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Image binary data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get image by id
+      tags:
+        - images
+    put:
+      parameters:
+        - description: Image ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/File"
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Replace image
+      tags:
+        - images
+  /products:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/internal_product.ListResponse"
+                type: array
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get all products in stock
+      tags:
+        - products
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_product.CreateRequest"
+        description: Product data
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_product.CreateResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Create new product
+      tags:
+        - products
+  "/products/{id}":
+    delete:
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Delete product
+      tags:
+        - products
+    get:
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_product.FullResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get product
+      tags:
+        - products
+  "/products/{id}/image":
+    get:
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Image binary data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get image by product id
+      tags:
+        - images
+    post:
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        $ref: "#/components/requestBodies/File"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_image.CreateResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Add product image
+      tags:
+        - images
+  "/products/{id}/stock":
+    patch:
+      parameters:
+        - description: Product ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_product.DecreaseStockRequest"
+        description: Amount to decrease by
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Decrease product quantity in stock
+      tags:
+        - products
+  /register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_auth.RegisterRequest"
+        description: User data
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_auth.Response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      summary: Register new user
+      tags:
+        - auth
+  /reset:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_auth.ResetRequest"
+        description: User email
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      summary: Reset user password
+      tags:
+        - auth
+  /suppliers:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/internal_supplier.Response"
+                type: array
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get a list of all suppliers
+      tags:
+        - suppliers
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_supplier.CreateRequest"
+        description: Supplier data
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_supplier.Response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Create new supplier
+      tags:
+        - suppliers
+  "/suppliers/{id}":
+    delete:
+      parameters:
+        - description: Supplier ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Delete supplier by ID
+      tags:
+        - suppliers
+    get:
+      parameters:
+        - description: Supplier ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/internal_supplier.Response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Get supplier
+      tags:
+        - suppliers
+  "/suppliers/{id}/address":
+    patch:
+      parameters:
+        - description: Supplier ID
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_supplier.UpdateAddressRequest"
+        description: New address
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Update supplier address
+      tags:
+        - suppliers
+servers:
+  - url: /api/v1
+components:
+  requestBodies:
+    File:
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+      description: Image bytes
+      required: true
+  securitySchemes:
+    BearerAuth:
+      in: header
+      name: Authorization
+      type: apiKey
+  schemas:
+    be2_internal_address.CreateRequest:
+      properties:
+        city:
+          example: Москва
+          maxLength: 255
+          type: string
+        country:
+          example: Россия
+          maxLength: 255
+          type: string
+        street:
+          example: Ленина, 10
+          maxLength: 255
+          type: string
+      required:
+        - city
+        - country
+        - street
+      type: object
+    be2_internal_address.Response:
+      properties:
+        city:
+          example: Москва
+          type: string
+        country:
+          example: Россия
+          type: string
+        id:
+          type: string
+        street:
+          example: Ленина, 10
+          type: string
+      type: object
+    be2_internal_category.CreateRequest:
+      properties:
+        name:
+          example: Холодильники
+          maxLength: 255
+          type: string
+      required:
+        - name
+      type: object
+    be2_internal_category.Response:
+      properties:
+        id:
+          type: string
+        name:
+          example: Холодильники
+          type: string
+      type: object
+    be2_internal_response.ErrorResponse:
+      properties:
+        message:
+          example: resource not found
+          type: string
+      type: object
+    be2_internal_supplier.Response:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.Response"
+        id:
+          type: string
+        name:
+          example: ООО Моя Оборона
+          type: string
+        phone_number:
+          example: "+79991234567"
+          type: string
+      type: object
+    internal_auth.LoginRequest:
+      properties:
+        email:
+          example: email@example.com
+          type: string
+        password:
+          example: $ExamplePass123!
+          type: string
+      required:
+        - email
+        - password
+      type: object
+    internal_auth.RegisterRequest:
+      properties:
+        email:
+          example: email@example.com
+          type: string
+        name:
+          example: Иван
+          maxLength: 255
+          type: string
+        password:
+          example: $ExamplePass123!
+          minLength: 8
+          type: string
+        phone:
+          example: "+79991234567"
+          type: string
+        surname:
+          example: Иванов
+          maxLength: 255
+          type: string
+      required:
+        - email
+        - name
+        - password
+        - phone
+        - surname
+      type: object
+    internal_auth.ResetRequest:
+      properties:
+        email:
+          example: email@example.com
+          type: string
+      required:
+        - email
+      type: object
+    internal_auth.Response:
+      properties:
+        token:
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+          type: string
+      type: object
+    internal_client.CreateRequest:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.CreateRequest"
+        birthday:
+          example: 1986-09-12
+          type: string
+        gender:
+          enum:
+            - m
+            - f
+            - n/a
+          example: m
+          type: string
+        name:
+          example: Иван
+          maxLength: 255
+          type: string
+        surname:
+          example: Иванов
+          maxLength: 255
+          type: string
+      required:
+        - address
+        - birthday
+        - gender
+        - name
+        - surname
+      type: object
+    internal_client.Response:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.Response"
+        birthday:
+          example: 1986-09-12
+          type: string
+        gender:
+          example: m
+          type: string
+        id:
+          type: string
+        name:
+          example: Иван
+          type: string
+        registration_date:
+          example: 2026-09-12T12:00:00Z
+          format: date-time
+          type: string
+        surname:
+          example: Иванов
+          type: string
+      type: object
+    internal_client.UpdateAddressRequest:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.CreateRequest"
+      type: object
+    internal_image.CreateResponse:
+      properties:
+        id:
+          type: string
+      type: object
+    internal_product.CreateRequest:
+      properties:
+        available_stock:
+          example: 5
+          type: integer
+        category:
+          $ref: "#/components/schemas/be2_internal_category.CreateRequest"
+        name:
+          example: Liebherr
+          maxLength: 255
+          type: string
+        price:
+          example: "999.99"
+          type: string
+        supplier_id:
+          type: string
+      required:
+        - available_stock
+        - category
+        - name
+        - price
+        - supplier_id
+      type: object
+    internal_product.CreateResponse:
+      properties:
+        available_stock:
+          example: 5
+          type: integer
+        category_id:
+          type: string
+        id:
+          type: string
+        image_id:
+          type: string
+        last_update_date:
+          example: 2026-09-12T12:00:00Z
+          format: date-time
+          type: string
+        name:
+          example: Liebherr
+          type: string
+        price:
+          example: "999.99"
+          type: string
+        supplier_id:
+          type: string
+      type: object
+    internal_product.DecreaseStockRequest:
+      properties:
+        amount:
+          example: 2
+          type: integer
+      required:
+        - amount
+      type: object
+    internal_product.FullResponse:
+      properties:
+        available_stock:
+          example: 5
+          type: integer
+        category:
+          $ref: "#/components/schemas/be2_internal_category.Response"
+        id:
+          type: string
+        image_id:
+          type: string
+        last_update_date:
+          example: 2026-09-12T12:00:00Z
+          format: date-time
+          type: string
+        name:
+          example: Liebherr
+          type: string
+        price:
+          example: "999.99"
+          type: string
+        supplier:
+          $ref: "#/components/schemas/be2_internal_supplier.Response"
+      type: object
+    internal_product.ListResponse:
+      properties:
+        available_stock:
+          example: 5
+          type: integer
+        category:
+          $ref: "#/components/schemas/be2_internal_category.Response"
+        id:
+          type: string
+        image_id:
+          type: string
+        name:
+          example: Liebherr
+          type: string
+        price:
+          example: "999.99"
+          type: string
+      type: object
+    internal_supplier.CreateRequest:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.CreateRequest"
+        name:
+          example: ООО Моя Оборона
+          maxLength: 255
+          type: string
+        phone_number:
+          example: "+79991234567"
+          type: string
+      required:
+        - address
+        - name
+        - phone_number
+      type: object
+    internal_supplier.Response:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.Response"
+        id:
+          type: string
+        name:
+          example: ООО Моя Оборона
+          type: string
+        phone_number:
+          example: "+79991234567"
+          type: string
+      type: object
+    internal_supplier.UpdateAddressRequest:
+      properties:
+        address:
+          $ref: "#/components/schemas/be2_internal_address.CreateRequest"
+      type: object
