@@ -106,11 +106,30 @@ var authModule = fx.Options(
 	),
 )
 
+var mockAuthModule = fx.Options(
+	fx.Provide(
+		fx.Annotate(
+			auth.NewMock,
+			fx.As(new(auth.Service)),
+			fx.As(new(server.Validator)),
+		),
+	),
+)
+
 var Module = fx.Options(
 	repoModule,
 	serviceModule,
 	handlerModule,
 	authModule,
+	infraModule,
+	configModule,
+)
+
+var MockModule = fx.Options(
+	repoModule,
+	serviceModule,
+	handlerModule,
+	mockAuthModule,
 	infraModule,
 	configModule,
 )
