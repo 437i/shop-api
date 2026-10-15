@@ -1,0 +1,44 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "frontend/AGENTS.md"
+  ],
+  "mcp": {
+    "backend-dev": {
+      "type": "local",
+      "command": [
+        "go",
+        "run",
+        "./cmd/backend-mcp"
+      ],
+      "cwd": "tools/backend-mcp",
+      "enabled": true,
+      "timeout": 10000
+    }
+  },
+  "share": "disabled",
+  "permission": {
+    "read": "allow",
+    "edit": "allow",
+    "bash": {
+      "*": "ask",
+      "pwd": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "npm run typecheck": "allow",
+      "npm run lint": "allow",
+      "npm run test*": "allow",
+      "npm run build": "allow",
+      "npm run api:types": "allow",
+      "docker compose ps": "allow",
+      "docker compose logs*": "allow",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "docker compose down*": "ask",
+      "docker volume rm*": "deny",
+      "docker system prune*": "deny",
+      "rm -rf*": "deny"
+    }
+  }
+}

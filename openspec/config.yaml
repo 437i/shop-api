@@ -1,0 +1,68 @@
+schema: spec-driven
+
+context: |
+  Language: Russian
+  All artifacts must be written in Russian.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  This repository contains an existing Go REST API and a new
+  React + TypeScript frontend for a home-appliance store.
+
+  The frontend is an administrative panel. Its UI language is
+  English by default, with Russian localization supported.
+
+  The Go HTTP API is the source of truth for all endpoints,
+  request and response fields, status codes and business behavior.
+  The source Swagger 2.0 specification is api/docs/swagger.yaml.
+
+  Before integrating any endpoint, inspect the Go router, handlers,
+  DTOs and middleware when the contract is ambiguous.
+  Never invent unsupported backend functionality.
+
+  The Java authentication service is internal and communicates
+  with the Go API over gRPC. The browser must never call it directly.
+
+  Frontend development uses React, TypeScript, Vite, React Router,
+  TanStack Query, Tailwind CSS and shadcn/ui.
+
+  Keep changes focused and compatible with the existing project.
+  Backend modifications are out of scope unless explicitly approved.
+
+rules:
+  proposal:
+    - Explain the user-visible goal and the exact scope.
+    - List existing API endpoints required by the feature.
+    - Identify unresolved contract or authentication questions.
+  specs:
+    - Describe observable and testable behavior.
+    - Include loading, success, empty, error and relevant auth states.
+    - Do not invent data or functionality unavailable from the API.
+  design:
+    - Respect frontend/backend separation.
+    - Prefer existing dependencies and established conventions.
+    - Describe API integration, state ownership and UI behavior.
+  tasks:
+    - Break work into small, verifiable tasks.
+    - Include relevant automated tests and manual checks.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always state what is out of scope
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing
