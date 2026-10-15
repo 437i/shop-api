@@ -185,8 +185,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-      - ./static:/usr/share/nginx/html:ro
-      - nginx_cache:/var/cache/nginx
+      - ./frontend/dist:/usr/share/nginx/html:ro
     depends_on:
       api:
         condition: service_healthy
@@ -200,6 +199,8 @@ services:
     networks:
       - be3
 
+  
+
 networks:
   be3:
     driver: bridge
@@ -207,4 +208,3 @@ networks:
 volumes:
   postgres_data:
   pgadmin_data:
-  nginx_cache:
