@@ -38,11 +38,11 @@
 
 ## 5. Admin Layout и навигация
 
-- [ ] 5.1 Создать `src/app/AdminLayout.tsx` с shadcn/ui Sidebar: пункты меню "Clients" (активный), "Products" (disabled), "Suppliers" (disabled), проверить что layout рендерится
-- [ ] 5.2 Добавить переключатель языка в layout: кнопка с текущим языком (EN/RU), при клике вызывает `i18n.changeLanguage()`, проверить что переключение меняет тексты интерфейса
-- [ ] 5.3 Добавить кнопку "Logout" в layout: при клике удаляет токен из localStorage, очищает QueryClient кеш (`queryClient.clear()`), перенаправляет на `/auth/login`, проверить что logout работает
-- [ ] 5.4 Добавить локализацию навигации: названия пунктов меню, кнопка выхода используют переводы, проверить что тексты переводятся
-- [ ] 5.5 Интегрировать AdminLayout в router: обернуть маршрут `/clients` в `<AdminLayout><Outlet /></AdminLayout>`, проверить что layout отображается вокруг защищённых страниц
+- [x] 5.1 Создать `src/app/AdminLayout.tsx` с shadcn/ui Sidebar: пункты меню "Clients" (активный), "Products" (disabled), "Suppliers" (disabled), проверить что layout рендерится
+- [x] 5.2 Добавить переключатель языка в layout: кнопка с текущим языком (EN/RU), при клике вызывает `i18n.changeLanguage()`, проверить что переключение меняет тексты интерфейса
+- [x] 5.3 Добавить кнопку "Logout" в layout: при клике удаляет токен из localStorage, очищает QueryClient кеш (`queryClient.clear()`), перенаправляет на `/auth/login`, проверить что logout работает
+- [x] 5.4 Добавить локализацию навигации: названия пунктов меню, кнопка выхода используют переводы, проверить что тексты переводятся
+- [x] 5.5 Интегрировать AdminLayout в router: обернуть маршрут `/clients` в `<AdminLayout><Outlet /></AdminLayout>`, проверить что layout отображается вокруг защищённых страниц
 
 ## 6. Страница списка клиентов
 

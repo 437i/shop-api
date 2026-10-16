@@ -3,6 +3,7 @@ import { RouterProvider, createMemoryRouter } from "react-router"
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { ProtectedRoute } from "@/app/ProtectedRoute"
+import { Providers } from "@/app/providers"
 import { routes } from "@/app/router"
 import { AUTH_TOKEN_STORAGE_KEY } from "@/shared/api/client"
 
@@ -10,7 +11,11 @@ const TOKEN = "test-token"
 
 function renderApp(initialPath: string) {
   const router = createMemoryRouter(routes, { initialEntries: [initialPath] })
-  render(<RouterProvider router={router} />)
+  render(
+    <Providers>
+      <RouterProvider router={router} />
+    </Providers>,
+  )
   return router
 }
 
@@ -75,15 +80,26 @@ describe("router", () => {
     await waitFor(() =>
       expect(router.state.location.pathname).toBe("/auth/login"),
     )
+    expect(
+      await screen.findByRole("button", { name: "Sign In" }),
+    ).toBeInTheDocument()
   })
 
-  it("keeps authenticated access to /clients", async () => {
+  it("keeps authenticated access to /clients and renders the admin layout", async () => {
     localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
     const router = renderApp("/clients")
 
     await waitFor(() =>
       expect(router.state.location.pathname).toBe("/clients"),
     )
+    expect(
+      await screen.findByRole("link", { name: "Clients" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "Suppliers" })).toBeDisabled()
+    expect(
+      screen.getByRole("button", { name: "Logout" }),
+    ).toBeInTheDocument()
   })
 
   it("redirects the root path to /clients", async () => {
