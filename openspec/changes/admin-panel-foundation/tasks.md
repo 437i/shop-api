@@ -57,14 +57,14 @@
 
 ## 7. E2E тестирование
 
-- [ ] 7.1 Создать `playwright.config.ts`: настроить `baseURL: 'http://127.0.0.1:5173'` (совпадает с `server.host` из `vite.config.ts`), `webServer` для запуска `npm run dev` с ожиданием `http://127.0.0.1:5173`, `testDir: './e2e'`, проверить что `npx playwright test --list` выполняется без ошибок конфигурации
-- [ ] 7.2 Добавить npm-скрипт `"test:e2e": "playwright test"` в package.json, проверить что скрипт добавлен
-- [ ] 7.3 Создать `e2e/auth.spec.ts`: тест "should login with mocked API and navigate to clients", использовать `page.route()` для перехвата `/api/v1/auth` (возврат mock token) и `/api/v1/clients` (возврат mock массива клиентов), проверить что после входа отображается таблица клиентов и пункты меню "Products" и "Suppliers" отображаются как disabled, проверить что тест проходит (`npm run test:e2e`)
-- [ ] 7.4 Создать тест "should redirect to login when accessing protected route without token": открыть `/clients` без токена в localStorage, проверить редирект на `/auth/login`, проверить что тест проходит (`npm run test:e2e`)
-- [ ] 7.5 Создать тест "should logout and redirect to login": после mock login перейти на `/clients`, нажать кнопку Logout, проверить редирект на `/auth/login` и отсутствие токена в localStorage, проверить что тест проходит (`npm run test:e2e`)
-- [ ] 7.6 Создать тест "should switch language": проверить что переключатель языка меняет тексты интерфейса с английского на русский и обратно, проверить что тест проходит (`npm run test:e2e`)
-- [ ] 7.7 Документировать установку Playwright браузеров в README или комментарии: добавить инструкцию `npx playwright install`, проверить что инструкция добавлена
-- [ ] 7.8 Исключить e2e-спеки из Vitest: добавить в `vite.config.ts` `test.exclude` для `e2e/**` (или `include` только `src/**`), проверить что `npm run test` не собирает Playwright-тесты
+- [x] 7.1 Создать `playwright.config.ts`: настроить `baseURL: 'http://127.0.0.1:5173'` (совпадает с `server.host` из `vite.config.ts`), `webServer` для запуска `npm run dev` с ожиданием `http://127.0.0.1:5173`, `testDir: './e2e'`, проверить что `npx playwright test --list` выполняется без ошибок конфигурации
+- [x] 7.2 Добавить npm-скрипт `"test:e2e": "playwright test"` в package.json, проверить что скрипт добавлен
+- [x] 7.3 Создать `e2e/auth.spec.ts`: тест "should login with mocked API and navigate to clients", использовать `page.route()` для перехвата `/api/v1/auth` (возврат mock token) и `/api/v1/clients` (возврат mock массива клиентов), проверить что после входа отображается таблица клиентов и пункты меню "Products" и "Suppliers" отображаются как disabled, проверить что тест проходит (`npm run test:e2e`)
+- [x] 7.4 Создать тест "should redirect to login when accessing protected route without token": открыть `/clients` без токена в localStorage, проверить редирект на `/auth/login`, проверить что тест проходит (`npm run test:e2e`)
+- [x] 7.5 Создать тест "should logout and redirect to login": после mock login перейти на `/clients`, нажать кнопку Logout, проверить редирект на `/auth/login` и отсутствие токена в localStorage, проверить что тест проходит (`npm run test:e2e`)
+- [x] 7.6 Создать тест "should switch language": проверить что переключатель языка меняет тексты интерфейса с английского на русский и обратно, проверить что тест проходит (`npm run test:e2e`)
+- [x] 7.7 Документировать установку Playwright браузеров в README или комментарии: добавить инструкцию `npx playwright install`, проверить что инструкция добавлена
+- [x] 7.8 Исключить e2e-спеки из Vitest: добавить в `vite.config.ts` `test.exclude` для `e2e/**` (или `include` только `src/**`), проверить что `npm run test` не собирает Playwright-тесты
 
 ## 8. Финальная проверка
 

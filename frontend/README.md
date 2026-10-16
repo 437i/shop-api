@@ -1,5 +1,31 @@
 # React + TypeScript + Vite
 
+## Testing
+
+### Unit tests (Vitest)
+
+```sh
+npm run test
+```
+
+### End-to-end tests (Playwright)
+
+Install the browsers required by Playwright once per machine:
+
+```sh
+npx playwright install
+```
+
+Run the e2e suite (Playwright starts the Vite dev server automatically at http://127.0.0.1:5173):
+
+```sh
+npm run test:e2e
+```
+
+E2E specs live in `e2e/` and intercept the API with `page.route()`; they do not require the Go API or any other backend to run. Vitest only collects specs from `src/` (see `vite.config.ts`), so Playwright specs are not picked up by `npm run test`.
+
+## Template notes
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
