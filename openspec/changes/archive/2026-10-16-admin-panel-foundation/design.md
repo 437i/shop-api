@@ -205,6 +205,7 @@ Backend API работает в Docker на 127.0.0.1:8080. Vite dev server пр
 - Сценарий: mock login → clients list (с перехватом `/api/v1/auth` и `/api/v1/clients` через `page.route()`) → logout
 - Сценарий: доступ к `/clients` без токена → редирект на login
 - Сценарий: переключение языка EN ↔ RU меняет тексты интерфейса
+- Сценарий: запрос к защищённому endpoint возвращает 401 → удаление токена, очистка кеша TanStack Query, редирект на `/auth/login`
 - **Критично:** Playwright конфигурация отсутствует. Нужно создать `playwright.config.ts`, настроить `baseURL`, `webServer` (запуск Vite dev server), создать npm-скрипт `test:e2e`.
 
 **Обоснование:** Unit-тесты для критичной логики, E2E для проверки интеграции. Моки в тестах, production-код чист от фиктивных данных.
