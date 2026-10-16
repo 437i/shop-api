@@ -74,18 +74,22 @@ describe("AdminLayout", () => {
     const user = userEvent.setup()
     renderLayout()
 
-    await user.click(screen.getByRole("button", { name: "EN" }))
+    await user.click(
+      screen.getByRole("button", { name: "Switch language: EN" }),
+    )
 
     expect(
-      await screen.findByRole("button", { name: "RU" }),
+      await screen.findByRole("button", { name: "Переключить язык: RU" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Клиенты" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Выйти" })).toBeInTheDocument()
 
-    await user.click(screen.getByRole("button", { name: "RU" }))
+    await user.click(
+      screen.getByRole("button", { name: "Переключить язык: RU" }),
+    )
 
     expect(
-      await screen.findByRole("button", { name: "EN" }),
+      await screen.findByRole("button", { name: "Switch language: EN" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Clients" })).toBeInTheDocument()
   })

@@ -66,3 +66,29 @@ test("should logout and redirect to login", async ({ page }) => {
   const token = await page.evaluate(() => localStorage.getItem("auth_token"))
   expect(token).toBeNull()
 })
+
+test("should reset the session and redirect to login when the clients request returns 401", async ({
+  page,
+}) => {
+  await page.goto("/auth/login")
+  await page.evaluate((token) => {
+    localStorage.setItem("auth_token", token)
+  }, MOCK_TOKEN)
+  await page.route(/\/api\/v1\/clients$/, (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "invalid or expired token" }),
+    }),
+  )
+
+  await page.goto("/clients")
+
+  await expect(page).toHaveURL(/\/auth\/login$/)
+  await expect(
+    page.getByRole("button", { name: "Sign In", exact: true }),
+  ).toBeVisible()
+
+  const token = await page.evaluate(() => localStorage.getItem("auth_token"))
+  expect(token).toBeNull()
+})

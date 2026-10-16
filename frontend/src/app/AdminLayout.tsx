@@ -75,7 +75,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleLanguageToggle}>
+              <SidebarMenuButton
+                aria-label={`${t("navigation.switchLanguage")}: ${language.toUpperCase()}`}
+                onClick={handleLanguageToggle}
+              >
                 <HugeiconsIcon icon={LanguageCircleIcon} strokeWidth={2} />
                 <span>{language.toUpperCase()}</span>
               </SidebarMenuButton>

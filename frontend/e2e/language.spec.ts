@@ -15,10 +15,12 @@ test("should switch language between English and Russian", async ({
     page.getByRole("columnheader", { name: "Name", exact: true }),
   ).toBeVisible()
 
-  await page.getByRole("button", { name: "EN", exact: true }).click()
+  await page
+    .getByRole("button", { name: "Switch language: EN", exact: true })
+    .click()
 
   await expect(
-    page.getByRole("button", { name: "RU", exact: true }),
+    page.getByRole("button", { name: "Переключить язык: RU", exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole("link", { name: "Клиенты", exact: true }),
@@ -33,10 +35,12 @@ test("should switch language between English and Russian", async ({
     page.getByRole("button", { name: "Выйти", exact: true }),
   ).toBeVisible()
 
-  await page.getByRole("button", { name: "RU", exact: true }).click()
+  await page
+    .getByRole("button", { name: "Переключить язык: RU", exact: true })
+    .click()
 
   await expect(
-    page.getByRole("button", { name: "EN", exact: true }),
+    page.getByRole("button", { name: "Switch language: EN", exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole("link", { name: "Clients", exact: true }),
