@@ -26,15 +26,15 @@
 
 ## 4. Форма входа
 
-- [ ] 4.1 Создать `src/pages/auth/LoginPage.tsx` с формой (react-hook-form + zod): поля email (type="email", required) и password (type="password", required), кнопка "Sign In", проверить что страница рендерится
-- [ ] 4.2 Настроить zod-схему валидации: email обязателен и должен быть валидным email, password обязателен (минимум 1 символ), проверить что схема экспортируется
-- [ ] 4.3 Реализовать TanStack Query mutation для `POST /api/v1/auth` с телом `{email, password}` через apiClient.post, проверить что mutation определена
-- [ ] 4.4 Реализовать обработку успешного ответа: если `token` непустой → сохранение в localStorage под ключом `auth_token` → редирект на `/clients`, если `token` пустой/отсутствует → ошибка "Authentication failed: no token received", проверить что логика реализована
-- [ ] 4.5 Реализовать отображение состояния загрузки: кнопка становится disabled, текст меняется на "Signing in...", проверить что состояние отображается
-- [ ] 4.6 Реализовать отображение ошибок: при 400/502 показать `ErrorResponse.message` или fallback "Invalid credentials"/"Authentication service unavailable", при сетевой ошибке "Network error. Please try again.", проверить что ошибки отображаются
-- [ ] 4.7 Реализовать редирект авторизованного пользователя: если токен уже есть в localStorage при загрузке `/auth/login` → редирект на `/clients`, проверить что редирект работает
-- [ ] 4.8 Добавить локализацию формы: labels, placeholder, кнопка, ошибки используют `useTranslation()` из react-i18next, проверить что тексты переводятся при переключении языка
-- [ ] 4.9 Написать unit-тесты для LoginPage: валидация формы, обработка успешного ответа с токеном, обработка успешного ответа без токена, обработка ошибок 400/502, редирект при наличии токена в localStorage при открытии `/auth/login`, мокированный API через vi.mock, проверить что тесты проходят (`npm run test`)
+- [x] 4.1 Создать `src/pages/auth/LoginPage.tsx` с формой (react-hook-form + zod): поля email (type="email", required) и password (type="password", required), кнопка "Sign In", проверить что страница рендерится
+- [x] 4.2 Настроить zod-схему валидации: email обязателен и должен быть валидным email, password обязателен (минимум 1 символ), проверить что схема экспортируется
+- [x] 4.3 Реализовать TanStack Query mutation для `POST /api/v1/auth` с телом `{email, password}` через apiClient.post, проверить что mutation определена
+- [x] 4.4 Реализовать обработку успешного ответа: если `token` непустой → сохранение в localStorage под ключом `auth_token` → редирект на `/clients`, если `token` пустой/отсутствует → ошибка "Authentication failed: no token received", проверить что логика реализована
+- [x] 4.5 Реализовать отображение состояния загрузки: кнопка становится disabled, текст меняется на "Signing in...", проверить что состояние отображается
+- [x] 4.6 Реализовать отображение ошибок: при 400/502 показать `ErrorResponse.message` или fallback "Invalid credentials"/"Authentication service unavailable", при сетевой ошибке "Network error. Please try again.", проверить что ошибки отображаются
+- [x] 4.7 Реализовать редирект авторизованного пользователя: если токен уже есть в localStorage при загрузке `/auth/login` → редирект на `/clients`, проверить что редирект работает
+- [x] 4.8 Добавить локализацию формы: labels, placeholder, кнопка, ошибки используют `useTranslation()` из react-i18next, проверить что тексты переводятся при переключении языка
+- [x] 4.9 Написать unit-тесты для LoginPage: валидация формы, обработка успешного ответа с токеном, обработка успешного ответа без токена, обработка ошибок 400/502, редирект при наличии токена в localStorage при открытии `/auth/login`, мокированный API через vi.mock, проверить что тесты проходят (`npm run test`)
 
 ## 5. Admin Layout и навигация
 
