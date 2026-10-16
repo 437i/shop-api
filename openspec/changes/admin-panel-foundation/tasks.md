@@ -10,19 +10,19 @@
 
 ## 2. API Client
 
-- [ ] 2.1 Создать `src/shared/api/client.ts` с типизированными функциями `apiClient.post<TRequest, TResponse>(path, body)` и `apiClient.get<TResponse>(path, params?)`, проверить что файл экспортирует apiClient
-- [ ] 2.2 Реализовать автоматическое добавление `Authorization: Bearer <token>` из `localStorage.getItem('auth_token')` для всех запросов, проверить что функция добавления заголовка покрыта unit-тестом
-- [ ] 2.3 Реализовать обработку ответа 401: удаление токена из localStorage, очистка QueryClient кеша, редирект на `/auth/login` (только для защищённых endpoints, исключая сам `/api/v1/auth`), проверить что логика покрыта unit-тестом
-- [ ] 2.4 Реализовать парсинг ErrorResponse (`{message?: string}`) и throw typed error для статусов 400, 500, 502, 503, проверить что обработка ошибок покрыта unit-тестом
-- [ ] 2.5 Написать unit-тесты для API client (Bearer-заголовок, 401 защищённого запроса сбрасывает сессию, 401 от `/api/v1/auth` не сбрасывает сессию, обработка ErrorResponse), проверить что тесты проходят (`npm run test`)
+- [x] 2.1 Создать `src/shared/api/client.ts` с типизированными функциями `apiClient.post<TRequest, TResponse>(path, body)` и `apiClient.get<TResponse>(path, params?)`, проверить что файл экспортирует apiClient
+- [x] 2.2 Реализовать автоматическое добавление `Authorization: Bearer <token>` из `localStorage.getItem('auth_token')` для всех запросов, проверить что функция добавления заголовка покрыта unit-тестом
+- [x] 2.3 Реализовать обработку ответа 401: удаление токена из localStorage, очистка QueryClient кеша, редирект на `/auth/login` (только для защищённых endpoints, исключая сам `/api/v1/auth`), проверить что логика покрыта unit-тестом
+- [x] 2.4 Реализовать парсинг ErrorResponse (`{message?: string}`) и throw typed error для статусов 400, 500, 502, 503, проверить что обработка ошибок покрыта unit-тестом
+- [x] 2.5 Написать unit-тесты для API client (Bearer-заголовок, 401 защищённого запроса сбрасывает сессию, 401 от `/api/v1/auth` не сбрасывает сессию, обработка ErrorResponse), проверить что тесты проходят (`npm run test`)
 
 ## 3. Router и Protected Route
 
-- [ ] 3.1 Создать `src/app/ProtectedRoute.tsx`: компонент проверяет наличие токена в localStorage, при отсутствии перенаправляет на `/auth/login`, при наличии рендерит children, проверить что компонент экспортируется
-- [ ] 3.2 Создать `src/app/router.tsx` с `createBrowserRouter`: маршруты `/auth/login` (публичный), `/` (редирект на `/clients`), `/clients` (защищённый через ProtectedRoute), `*` (NotFoundPage), проверить что router экспортируется
-- [ ] 3.3 Создать заглушку `src/pages/NotFoundPage.tsx` с текстом "404: Page Not Found" и ссылкой на главную, проверить что страница рендерится
-- [ ] 3.4 Обновить `src/main.tsx`: заменить demo App на `<RouterProvider router={router} />` внутри Providers, удалить импорт demo App.tsx, проверить что приложение компилируется и запускается (`npm run dev`)
-- [ ] 3.5 Написать unit-тесты для ProtectedRoute и роутера: редирект при отсутствии токена, рендер children при наличии токена, отображение NotFoundPage для неизвестного маршрута, проверить что тесты проходят (`npm run test`)
+- [x] 3.1 Создать `src/app/ProtectedRoute.tsx`: компонент проверяет наличие токена в localStorage, при отсутствии перенаправляет на `/auth/login`, при наличии рендерит children, проверить что компонент экспортируется
+- [x] 3.2 Создать `src/app/router.tsx` с `createBrowserRouter`: маршруты `/auth/login` (публичный), `/` (редирект на `/clients`), `/clients` (защищённый через ProtectedRoute), `*` (NotFoundPage), проверить что router экспортируется
+- [x] 3.3 Создать заглушку `src/pages/NotFoundPage.tsx` с текстом "404: Page Not Found" и ссылкой на главную, проверить что страница рендерится
+- [x] 3.4 Обновить `src/main.tsx`: заменить demo App на `<RouterProvider router={router} />` внутри Providers, удалить импорт demo App.tsx, проверить что приложение компилируется и запускается (`npm run dev`)
+- [x] 3.5 Написать unit-тесты для ProtectedRoute и роутера: редирект при отсутствии токена, рендер children при наличии токена, отображение NotFoundPage для неизвестного маршрута, проверить что тесты проходят (`npm run test`)
 
 ## 4. Форма входа
 

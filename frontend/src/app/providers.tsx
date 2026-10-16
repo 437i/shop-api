@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
 
+import { setUnauthorizedHandler } from "@/shared/api/client"
 import i18n from "@/shared/i18n/config"
 
 const queryClient = new QueryClient({
@@ -13,6 +14,11 @@ const queryClient = new QueryClient({
       retry: false,
     },
   },
+})
+
+setUnauthorizedHandler(() => {
+  queryClient.clear()
+  window.location.assign("/auth/login")
 })
 
 export function Providers({ children }: { children: ReactNode }) {
