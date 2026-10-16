@@ -1,67 +1,109 @@
 ---
 name: openspec-audit
-description: Audit an OpenSpec change for structural validity, API contract accuracy, requirement coverage, architectural consistency, task quality, and implementation readiness. Read-only; never modify files.
+description: Perform a thorough read-only audit of any OpenSpec change for structural validity, requirement correctness, design consistency, implementation readiness, and verification coverage.
 ---
 
 # OpenSpec Audit
 
 ## Purpose
 
-Perform a rigorous, read-only audit of an existing OpenSpec change before implementation.
+Perform a rigorous, read-only audit of an OpenSpec change before implementation or another explicitly requested review milestone.
 
-The goal is to determine whether the proposal, design, specifications, and tasks are internally consistent, grounded in the actual repository, and ready for implementation.
+Determine whether the change is valid under the project's configured OpenSpec schema, consistent with the actual repository, adequately specified, and ready for its intended next stage.
 
-Do not treat successful OpenSpec validation as proof that the change is correct.
+This skill is repository-agnostic. Do not assume a particular programming language, framework, application architecture, API format, deployment platform, or project structure.
+
+A successful OpenSpec validation is necessary when applicable, but it does not prove that the change is semantically correct or ready for implementation.
 
 ## Mandatory rules
 
-1. Read the actual files. Never rely exclusively on summaries, previous agent reports, or claimed results.
-2. Do not modify, create, delete, or reformat files.
-3. Do not implement application code or automatically repair findings.
-4. Do not invent API endpoints, DTO fields, dependencies, requirements, or repository structure.
-5. Clearly distinguish confirmed facts from assumptions and recommendations.
-6. Do not report a check as successful unless it was actually executed.
-7. Inspect the current Git working tree before starting and preserve all existing user changes.
-8. Keep the audit limited to the specified change and directly relevant repository sources.
-9. Do not browse the web when the required evidence is available in the repository.
-10. Do not expand the scope of the feature while reviewing it.
+1. Read the actual files and inspect the actual repository state. Do not rely exclusively on summaries, previous agent reports, or claimed results.
+2. Never create, modify, delete, reformat, or stage files.
+3. Never implement code or automatically repair findings.
+4. Do not invent requirements, behavior, APIs, dependencies, architecture, or repository structure.
+5. Distinguish confirmed defects from risks, assumptions, and optional recommendations.
+6. Report a command as successful only if it was actually executed and its result observed.
+7. Inspect the current Git working tree and preserve unrelated user changes.
+8. Keep the audit scoped to the selected change and the repository context necessary to assess it.
+9. Do not browse external sources when the repository already contains sufficient authoritative evidence. Use external sources only when the task requires external verification or the relevant contract cannot be established locally.
+10. Do not expand the change's scope or impose personal architectural preferences as requirements.
+11. Follow applicable repository instructions, including AGENTS.md and other project-specific guidance.
+12. If required evidence is unavailable, explicitly state the limitation instead of guessing.
 
 ## Step 1: Identify the target change
 
-Accept the change identifier from the user or invoking command.
+Determine the change identifier from the user's request or invoking command.
 
-Validate that the identifier exists under `openspec/changes/`.
+If no identifier is provided:
 
-If no identifier was provided:
-- Run `openspec list`.
-- Continue only if exactly one active change can be identified unambiguously.
-- Otherwise report the available candidates and request an explicit identifier.
+1. Run `openspec list`.
+2. Identify the active changes reported by the installed CLI.
+3. Continue only if exactly one intended change can be identified unambiguously.
+4. If several changes are possible, report their identifiers and ask the user to select one.
 
-Do not assume that the most recently modified directory is the intended change.
+Do not assume that the most recently modified change is the intended target.
 
-## Step 2: Inspect repository context
+Verify that the selected change actually exists in the correct OpenSpec store or workspace, if the project uses more than one.
 
-Read, when present and relevant:
+Do not silently switch to another change when the requested one cannot be found.
 
-- Root `AGENTS.md`.
-- Feature-specific `AGENTS.md`.
-- `openspec/config.yaml`.
-- The target change's `proposal.md`.
-- The target change's `design.md`.
-- The target change's `tasks.md`.
-- All delta specification files belonging to the change.
-- The change metadata file, if present.
-- Existing base specifications relevant to the change.
-- Actual dependency manifests and configuration files.
-- The authoritative API contract, source code, and generated artifacts relevant to the feature.
+## Step 2: Discover the project's OpenSpec workflow
 
-Use the directory structure and schema configured in the repository. Do not assume that paths described in previous reports are correct.
+Inspect the configuration and documentation that determine how OpenSpec is used in this repository.
 
-For API-related changes, inspect the actual configured source of truth. In this repository, investigate `api/docs/swagger.yaml`, `api/docs/swagger.json`, and `frontend/src/shared/api/generated/schema.d.ts` when relevant. If these files disagree, report the disagreement instead of silently treating them as synchronized.
+Where applicable, read:
 
-## Step 3: Validate OpenSpec structure
+- `openspec/config.yaml`;
+- the target change's metadata file, such as `.openspec.yaml`;
+- the project's schema definition, if it uses a custom schema;
+- workflow instructions and repository-specific rules;
+- the artifact definitions, dependencies, and templates required by the active schema.
 
-Run:
+Use the installed CLI and the actual configured schema as the source of structural expectations.
+
+Do not assume every change must contain `proposal.md`, `design.md`, `tasks.md`, or delta specifications. Determine which artifacts are required, optional, or explicitly skipped by the active workflow.
+
+For example, a tooling-only or refactoring change may legitimately have no behavior-level specification when the configured workflow explicitly allows it.
+
+Conversely, do not accept missing specifications when the change introduces or modifies behavior and the active schema requires them.
+
+Do not force a custom-schema project into the default `spec-driven` workflow.
+
+## Step 3: Inspect the change and relevant repository context
+
+Read the complete contents of all artifacts that exist and are relevant to the selected change.
+
+Include, as applicable:
+
+- proposal or equivalent motivation and scope artifact;
+- behavior specifications or equivalent requirements artifacts;
+- design or implementation approach;
+- task checklist or execution plan;
+- change metadata;
+- relevant existing specifications;
+- relevant repository instructions;
+- source code and tests implementing related existing behavior;
+- dependency manifests and lockfiles;
+- configuration, schema, contract, or code-generation sources;
+- documentation describing expected behavior and verification.
+
+Do not limit the review to file names, headings, short excerpts, or a previous agent's summary.
+
+For each source, establish its role:
+
+- authoritative source of requirements;
+- authoritative source of existing behavior;
+- derived or generated artifact;
+- explanatory documentation;
+- implementation evidence.
+
+When sources disagree, report the contradiction and explain which source appears authoritative and why. Do not silently choose whichever version is most convenient.
+
+## Step 4: Validate OpenSpec structure and semantics
+
+Run the applicable structural validation command supported by the installed CLI.
+
+For a standard CLI that supports it, run:
 
 `openspec validate <change-id> --strict`
 
@@ -69,149 +111,215 @@ Also run:
 
 `openspec list`
 
-Use only CLI commands supported by the installed version.
+Inspect command output and exit status.
 
-Check:
+Check all applicable items:
 
-- The proposal's declared capabilities match the delta specifications.
-- Specification paths follow the active OpenSpec schema.
-- Requirement headings and scenarios follow the expected schema format.
-- Every requirement describes observable behavior.
-- Scenarios define meaningful preconditions, actions, and outcomes.
-- Requirements are sufficiently specific to be tested.
-- Design decisions do not contradict the requirements.
-- Tasks implement the approved scope.
-- No unrelated base specifications, changes, or archived changes were accidentally modified.
+### Workflow and artifacts
 
-Report validation output faithfully. If a command fails or is unavailable, say so.
+- The change follows its configured schema and workflow.
+- Required artifacts exist.
+- Optional or intentionally skipped artifacts are handled correctly.
+- Artifact dependencies and completion order are valid.
+- Metadata uses recognized fields and values.
+- Declared capabilities, feature areas, or equivalent change identifiers correspond to the actual specifications.
+- Paths follow the configured schema rather than assumptions from another project.
 
-## Step 4: Audit API contract accuracy
+### Requirements and specifications
 
-When the change interacts with an API, verify every relevant endpoint and payload against the authoritative source.
+- Requirements describe observable outcomes or explicitly defined constraints.
+- Normative statements are clear and testable.
+- Scenarios follow the required syntax and contain meaningful conditions, actions, and outcomes.
+- Each requirement has sufficient coverage.
+- Modified requirements contain the complete updated requirement when required by the schema.
+- Removed or renamed requirements follow the schema's migration and naming rules.
+- No requirements have been invented merely to satisfy validation.
+- No relevant existing requirements or behavior have been overlooked.
+- Specifications accurately describe the intended change without drifting into unrelated features.
 
-Check:
+### Cross-artifact consistency
 
-- HTTP methods and paths.
-- Required and optional request fields.
-- Response structure and optional fields.
-- Query parameters, constraints, and defaults.
-- Authentication headers and authorization requirements.
-- HTTP success and error statuses.
-- Binary request/response handling.
-- Empty responses such as 204 No Content.
-- Consistency of generated types with the actual API schema.
+- Motivation, scope, requirements, design, tasks, and verification agree with one another.
+- Non-goals remain excluded throughout the plan.
+- Risks and constraints have corresponding mitigations or explicit acceptance decisions where necessary.
+- Dependencies and assumptions are stated consistently.
+- No artifact contradicts another or silently changes an earlier decision.
 
-Never infer a contract from endpoint names or examples alone.
+A passing validator result does not override semantic problems discovered during review.
 
-For the ShopAPI project, remember:
+## Step 5: Verify domain-specific claims conditionally
 
-- The Go REST API is the browser-facing boundary.
-- Swagger is the API contract source; verify which Swagger artifact is authoritative if YAML and JSON disagree.
-- Browser code must not call the internal Java gRPC service directly.
-- The existence of an endpoint in an old report does not prove that it exists now.
+Apply the following checks only when relevant to the change.
 
-## Step 5: Audit design and dependencies
+Do not force irrelevant sections into the audit.
 
-Compare `design.md` with actual source code, package manifests, and configuration.
+### API, protocols, and integrations
 
-Check:
+When a change interacts with an API or external system:
 
-- Dependencies proposed by the design are actually installed or explicitly included in tasks.
-- The design does not assume features from missing packages.
-- Existing components and architecture are reused where reasonable.
-- No unnecessary abstractions, frameworks, state-management libraries, or services are introduced.
-- The implementation plan does not duplicate existing functionality.
-- Security trade-offs are described accurately.
-- Production behavior is not dependent on test mocks.
-- Environmental limitations are not presented as verified functionality.
+- identify the authoritative contract;
+- verify operations, paths, methods, payloads, field names, required and optional fields, response structures, status codes, and error semantics;
+- inspect authentication, authorization, pagination, filtering, binary transfers, and empty responses when applicable;
+- compare generated types or clients with their actual source contract;
+- verify how dependencies are configured and whether required services exist;
+- identify assumptions that cannot yet be tested.
 
-For authentication, verify:
+Do not infer API behavior from endpoint names, examples, or memory alone.
 
-- The token is handled according to the documented contract.
-- Optional response fields are treated as optional.
-- Missing or empty tokens do not create an authenticated session.
-- A 401 from protected requests clears the session when required.
-- A public login error does not inadvertently trigger global logout behavior.
-- Logout clears both the stored token and relevant cached user data.
-- No unsupported JWT claims, refresh-token behavior, roles, or permissions are invented.
+### Application behavior and user interfaces
 
-## Step 6: Audit task completeness and quality
+When relevant, verify:
 
-Read the entire `tasks.md`. Do not rely on a short excerpt.
+- primary and alternate user flows;
+- loading, success, empty, error, and recovery states;
+- invalid input handling;
+- navigation, permissions, state transitions, and session behavior;
+- accessibility and keyboard behavior when required;
+- consistency between requirements and the planned tests.
 
-Check:
+Only apply states and behavior appropriate to the feature.
 
-- Every specification requirement is covered by one or more tasks.
-- Tasks have clear and verifiable completion criteria.
-- Dependencies and execution order are sensible.
-- Implementation precedes final verification.
-- Tests are created before or alongside the functionality they verify.
-- No tasks duplicate other tasks.
-- No placeholder or skeleton tasks add work without delivering functionality.
-- Documentation tasks have a concrete purpose.
-- The total task count is consistent with the checkboxes in the file and, where applicable, OpenSpec's reported count.
-- Test setup and tooling are included when needed.
+### Architecture and implementation design
 
-Do not impose an arbitrary task count. Recommend consolidation only when it preserves traceability, clarity, and verification.
+When relevant, verify:
 
-Do not recommend coverage percentages unless the project has an established, justified coverage target.
+- compatibility with the current architecture;
+- appropriate separation of responsibilities;
+- reuse of existing abstractions and components;
+- absence of unnecessary frameworks, dependencies, or layers;
+- clear ownership of state, validation, business logic, and side effects;
+- dependency versions and capabilities against actual manifests;
+- a feasible migration or rollout approach when required.
+
+Do not enforce a particular architecture merely because it is familiar.
+
+### Security, privacy, and data
+
+When relevant, verify:
+
+- authentication and authorization boundaries;
+- handling and storage of credentials, secrets, and sensitive data;
+- trust boundaries and validation;
+- failure behavior and access control;
+- data exposure, logging, retention, and deletion;
+- migrations, backwards compatibility, and rollback where applicable;
+- differences between development, testing, staging, and production.
+
+Distinguish confirmed vulnerabilities from potential risks and unresolved design choices.
+
+### Testing and operations
+
+When relevant, check:
+
+- unit, integration, contract, end-to-end, or manual testing requirements;
+- appropriate isolation and test data;
+- external services or infrastructure required by tests;
+- deterministic execution and reproducibility;
+- observability, diagnostics, health checks, and deployment requirements;
+- rollback or recovery procedures where relevant.
+
+Do not require a test category or operational mechanism that is unnecessary for the change.
+
+## Step 6: Audit task completeness and execution order
+
+Read the entire task checklist or equivalent implementation plan.
+
+Verify:
+
+- every applicable requirement maps to one or more tasks;
+- each task has a clear, verifiable outcome;
+- dependencies and ordering are sensible;
+- prerequisite configuration or tooling is included;
+- implementation and tests are scheduled appropriately;
+- final verification occurs after the work it verifies;
+- acceptance criteria cover important edge cases;
+- no tasks are duplicated;
+- no placeholder or skeleton tasks create work without a meaningful deliverable;
+- documentation tasks have a concrete purpose;
+- non-goals have not silently entered the plan;
+- the effort is proportionate to the change.
+
+Do not target an arbitrary number of tasks or impose a preferred granularity without justification.
+
+When task counts disagree with CLI output, inspect the actual checklist syntax and CLI counting convention. Reconcile the discrepancy instead of blindly counting every checkbox, nested list item, or example as an OpenSpec task.
+
+For large changes, provide a concise requirement-to-task coverage map. Highlight requirements without tasks and tasks that do not trace to an approved requirement, necessary enabling work, or explicit verification need.
 
 ## Step 7: Run read-only checks
 
-Run the applicable validation commands and inspect their outputs.
+Run applicable checks available in the repository.
 
-At minimum, where available:
+At minimum, where supported:
 
-- `openspec validate <change-id> --strict`
-- `openspec list`
-- `git status --short`
-- `git diff --check`
+- OpenSpec validation for the target change;
+- `openspec list`;
+- `git status --short`;
+- `git diff --check`.
 
-Do not run commands that change files, install dependencies, regenerate artifacts, or start implementation.
+Additional checks may include schema validation, contract consistency checks, dependency inspection, or other commands that are genuinely read-only and do not regenerate artifacts or change the environment.
 
-If task-count discrepancies exist, compare the actual checkbox count against the reported OpenSpec count. Explain any discrepancy rather than guessing.
+Do not install dependencies, regenerate files, rewrite snapshots, run automatic formatters, or start implementation.
+
+Do not assume `git diff --check` covers untracked files. Inspect untracked artifacts directly when relevant.
+
+If a command is unavailable, fails to execute, or produces an ambiguous result, report that explicitly.
 
 ## Step 8: Report findings
 
-Produce the audit in Russian.
+Write the report in Russian unless the user or repository instructions require another language.
 
-Use these sections:
+Use the following sections:
 
 ### BLOCKER
-Problems that make implementation unsafe, contradictory, or impossible to verify.
+
+Issues that prevent safe or coherent implementation, violate a hard constraint, rely on a false contract, or make essential behavior impossible to verify.
 
 ### MAJOR
-Important correctness, scope, architecture, security, or test-coverage problems that should be resolved before implementation.
+
+Important correctness, scope, architecture, compatibility, security, or verification problems that should be resolved before implementation.
 
 ### MINOR
-Optional improvements that do not prevent implementation.
 
-For every finding provide:
+Optional improvements or low-risk issues that do not prevent implementation.
 
-- A unique finding ID, such as `OS-001`.
-- Severity.
-- Exact file path and requirement/task heading.
-- Evidence from the actual file or command output.
-- Why it matters.
-- A specific recommended correction.
+### Findings format
 
-Do not invent line numbers. Use headings when line ranges cannot be determined reliably.
+For every finding, include:
 
-### Requirement coverage
+- a unique identifier, such as `OS-001`;
+- severity;
+- exact file path and requirement/task heading;
+- concise evidence from the actual artifact, code, configuration, or command output;
+- impact;
+- a specific recommended correction.
 
-Show whether each capability and significant requirement is covered by tasks.
+Do not invent line numbers or claim that a file contains something you have not inspected.
+
+Clearly distinguish confirmed defects from inferred risks and recommendations.
+
+### Coverage and execution plan
+
+Summarize:
+
+- whether requirements are covered by tasks;
+- missing coverage and unnecessary tasks;
+- dependency or ordering problems;
+- test and operational gaps that matter to the change.
 
 ### Validation results
 
-List the actual commands executed and their actual outcomes.
+List each command that was actually run and its actual result. Separate CLI validation, content review, and checks that could not be performed.
 
 ### Verdict
 
-Choose exactly one:
+Choose one:
 
-- `APPROVE` — no outstanding blockers or major findings.
-- `NEEDS REVISION` — blockers or major findings remain.
+- `APPROVE` — no unresolved BLOCKER or MAJOR findings; evidence is sufficient for the intended next stage.
+- `NEEDS REVISION` — at least one BLOCKER or MAJOR finding remains.
+- `INCOMPLETE` — the audit cannot reach a reliable verdict because essential files, context, or validation evidence are unavailable.
 
-A passing CLI validation alone cannot justify `APPROVE`.
+MINOR findings may remain under APPROVE, but must be listed.
 
-Finish with a concise list of concrete next actions. Do not make any changes yourself.
+End with concrete next actions.
+
+Do not modify files or begin repair under any circumstances.
