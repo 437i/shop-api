@@ -1,0 +1,41 @@
+{
+  "login": {
+    "title": "Sign In",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Sign In",
+    "submitting": "Signing in..."
+  },
+  "validation": {
+    "emailRequired": "Email is required",
+    "invalidEmail": "Invalid email format",
+    "passwordRequired": "Password is required"
+  },
+  "errors": {
+    "network": "Network error. Please try again.",
+    "invalidRequest": "Invalid request",
+    "server": "Server error. Please try again later.",
+    "invalidCredentials": "Invalid credentials",
+    "authenticationUnavailable": "Authentication service unavailable",
+    "missingToken": "Authentication failed: no token received"
+  },
+  "navigation": {
+    "clients": "Clients",
+    "products": "Products",
+    "suppliers": "Suppliers",
+    "logout": "Logout",
+    "switchLanguage": "Switch language"
+  },
+  "clients": {
+    "columns": {
+      "name": "Name",
+      "surname": "Surname",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "registrationDate": "Registration Date"
+    },
+    "empty": "No clients found"
+  }
+}

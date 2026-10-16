@@ -1,0 +1,41 @@
+{
+  "login": {
+    "title": "Вход",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "Пароль",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Войти",
+    "submitting": "Выполняется вход..."
+  },
+  "validation": {
+    "emailRequired": "Укажите email",
+    "invalidEmail": "Некорректный формат email",
+    "passwordRequired": "Укажите пароль"
+  },
+  "errors": {
+    "network": "Ошибка сети. Попробуйте ещё раз.",
+    "invalidRequest": "Некорректный запрос",
+    "server": "Ошибка сервера. Попробуйте позже.",
+    "invalidCredentials": "Неверные учётные данные",
+    "authenticationUnavailable": "Сервис аутентификации недоступен",
+    "missingToken": "Ошибка аутентификации: токен не получен"
+  },
+  "navigation": {
+    "clients": "Клиенты",
+    "products": "Товары",
+    "suppliers": "Поставщики",
+    "logout": "Выйти",
+    "switchLanguage": "Переключить язык"
+  },
+  "clients": {
+    "columns": {
+      "name": "Имя",
+      "surname": "Фамилия",
+      "birthday": "Дата рождения",
+      "gender": "Пол",
+      "registrationDate": "Дата регистрации"
+    },
+    "empty": "Клиенты не найдены"
+  }
+}
