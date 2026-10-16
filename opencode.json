@@ -14,7 +14,23 @@
       "cwd": "tools/backend-mcp",
       "enabled": true,
       "timeout": 10000
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "ctx7sk-c3294f40-d97a-48b9-8359-9a6ce4cb4517" },
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "-y", "@playwright/mcp@latest"],
+      "enabled": true
     }
+  },
+  "tools": {
+    "context7_*": false,
+    "playwright_*": false,
+    "backend-dev_*": false
   },
   "share": "disabled",
   "permission": {
