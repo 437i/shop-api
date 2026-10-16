@@ -46,14 +46,14 @@
 
 ## 6. Страница списка клиентов
 
-- [ ] 6.1 Создать `src/pages/clients/ClientsListPage.tsx` с TanStack Query `useQuery` для `GET /api/v1/clients` через apiClient.get, проверить что страница рендерится
-- [ ] 6.2 Реализовать состояние загрузки: при `isLoading === true` отображать Skeleton loader (5 строк с заглушками колонок), проверить что skeleton отображается
-- [ ] 6.3 Реализовать состояние пустого списка: при `isSuccess && data.length === 0` отображать "No clients found" с иллюстрацией, проверить что empty state отображается
-- [ ] 6.4 Реализовать отображение таблицы: при `isSuccess && data.length > 0` отображать shadcn/ui Table с колонками Name, Surname, Birthday (формат YYYY-MM-DD), Gender, Registration Date (формат YYYY-MM-DD HH:mm), используя поля из `internal_client.Response[]`, проверить что таблица рендерится с данными
-- [ ] 6.5 Реализовать обработку ошибок: при `isError && error.status === 400` отображать Alert с `ErrorResponse.message` или fallback "Invalid request", при 500/503 — с `ErrorResponse.message` или fallback "Server error. Please try again later.", при сетевой ошибке "Network error. Please try again.", проверить что ошибки отображаются
-- [ ] 6.6 Добавить локализацию таблицы: заголовки колонок, сообщения об ошибках, empty state используют переводы, проверить что тексты переводятся
-- [ ] 6.7 Написать unit-тесты для ClientsListPage: skeleton при загрузке, empty state при пустом массиве, таблица при данных, ошибки при 400/500/503, 401 (очистка сессии и редирект на `/auth/login`), повторное монтирование в течение staleTime отдаёт данные из кеша без нового запроса, мокированный API, проверить что тесты проходят (`npm run test`)
-- [ ] 6.8 Добавить компонент `alert` из shadcn/ui (`npx shadcn@latest add alert`), проверить что `src/components/ui/alert.tsx` создан и используется для сообщений об ошибках
+- [x] 6.1 Создать `src/pages/clients/ClientsListPage.tsx` с TanStack Query `useQuery` для `GET /api/v1/clients` через apiClient.get, проверить что страница рендерится
+- [x] 6.2 Реализовать состояние загрузки: при `isLoading === true` отображать Skeleton loader (5 строк с заглушками колонок), проверить что skeleton отображается
+- [x] 6.3 Реализовать состояние пустого списка: при `isSuccess && data.length === 0` отображать "No clients found" с иллюстрацией, проверить что empty state отображается
+- [x] 6.4 Реализовать отображение таблицы: при `isSuccess && data.length > 0` отображать shadcn/ui Table с колонками Name, Surname, Birthday (формат YYYY-MM-DD), Gender, Registration Date (формат YYYY-MM-DD HH:mm), используя поля из `internal_client.Response[]`, проверить что таблица рендерится с данными
+- [x] 6.5 Реализовать обработку ошибок: при `isError && error.status === 400` отображать Alert с `ErrorResponse.message` или fallback "Invalid request", при 500/503 — с `ErrorResponse.message` или fallback "Server error. Please try again later.", при сетевой ошибке "Network error. Please try again.", проверить что ошибки отображаются
+- [x] 6.6 Добавить локализацию таблицы: заголовки колонок, сообщения об ошибках, empty state используют переводы, проверить что тексты переводятся
+- [x] 6.7 Написать unit-тесты для ClientsListPage: skeleton при загрузке, empty state при пустом массиве, таблица при данных, ошибки при 400/500/503, 401 (очистка сессии и редирект на `/auth/login`), повторное монтирование в течение staleTime отдаёт данные из кеша без нового запроса, мокированный API, проверить что тесты проходят (`npm run test`)
+- [x] 6.8 Добавить компонент `alert` из shadcn/ui (`npx shadcn@latest add alert`), проверить что `src/components/ui/alert.tsx` создан и используется для сообщений об ошибках
 
 ## 7. E2E тестирование
 

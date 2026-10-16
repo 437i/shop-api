@@ -29,6 +29,7 @@
     "switchLanguage": "Switch language"
   },
   "clients": {
+    "loading": "Loading clients...",
     "columns": {
       "name": "Name",
       "surname": "Surname",

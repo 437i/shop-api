@@ -29,6 +29,7 @@
     "switchLanguage": "Переключить язык"
   },
   "clients": {
+    "loading": "Загрузка клиентов...",
     "columns": {
       "name": "Имя",
       "surname": "Фамилия",
