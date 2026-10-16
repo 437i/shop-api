@@ -57,9 +57,9 @@
 - **THEN** система очищает кеш TanStack Query
 - **THEN** система перенаправляет пользователя на `/auth/login`
 
-### Requirement: Ошибки 400 и 500 отображаются на странице
+### Requirement: Ошибки 400, 500 и 503 отображаются на странице
 
-Система MUST отображать сообщение об ошибке при неуспешных ответах 400 или 500.
+Система MUST отображать сообщение об ошибке при неуспешных ответах 400, 500 или 503.
 
 #### Scenario: Bad Request (400)
 - **WHEN** GET-запрос на `/api/v1/clients` возвращает 400
@@ -70,6 +70,12 @@
 #### Scenario: Internal Server Error (500)
 - **WHEN** GET-запрос на `/api/v1/clients` возвращает 500
 - **THEN** система отображает Alert с сообщением из поля `message` ErrorResponse
+- **THEN** если поле `message` отсутствует, система отображает "Server error. Please try again later."
+- **THEN** таблица не отображается
+
+#### Scenario: Service Unavailable (503)
+- **WHEN** GET-запрос на `/api/v1/clients` возвращает 503 (auth service недоступен)
+- **THEN** система отображает Alert с сообщением из поля `message` ErrorResponse, если оно присутствует
 - **THEN** если поле `message` отсутствует, система отображает "Server error. Please try again later."
 - **THEN** таблица не отображается
 
