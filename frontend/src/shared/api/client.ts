@@ -160,4 +160,19 @@ export const apiClient = {
       headers: buildHeaders(),
     })
   },
+
+  patch<TRequest, TResponse>(path: string, body: TRequest): Promise<TResponse> {
+    return request<TResponse>(path, undefined, {
+      method: "PATCH",
+      headers: buildHeaders(),
+      body: JSON.stringify(body),
+    })
+  },
+
+  delete<TResponse>(path: string): Promise<TResponse> {
+    return request<TResponse>(path, undefined, {
+      method: "DELETE",
+      headers: buildHeaders(),
+    })
+  },
 }

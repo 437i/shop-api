@@ -17,6 +17,7 @@
     "network": "Network error. Please try again.",
     "invalidRequest": "Invalid request",
     "server": "Server error. Please try again later.",
+    "notFound": "Client not found",
     "invalidCredentials": "Invalid credentials",
     "authenticationUnavailable": "Authentication service unavailable",
     "missingToken": "Authentication failed: no token received"
@@ -37,6 +38,66 @@
       "gender": "Gender",
       "registrationDate": "Registration Date"
     },
-    "empty": "No clients found"
+    "empty": "No clients found",
+    "actions": {
+      "addClient": "Add client",
+      "menuLabel": "Actions for {{name}} {{surname}}",
+      "editAddress": "Edit address",
+      "delete": "Delete",
+      "deleteNamed": "Delete client {{name}} {{surname}}"
+    },
+    "create": {
+      "title": "Add client",
+      "nameLabel": "Name",
+      "surnameLabel": "Surname",
+      "birthdayLabel": "Birthday",
+      "genderLabel": "Gender",
+      "genderPlaceholder": "Select gender",
+      "countryLabel": "Country",
+      "cityLabel": "City",
+      "streetLabel": "Street",
+      "submit": "Create",
+      "submitting": "Creating...",
+      "cancel": "Cancel"
+    },
+    "editAddress": {
+      "title": "Edit address",
+      "countryLabel": "Country",
+      "cityLabel": "City",
+      "streetLabel": "Street",
+      "submit": "Save",
+      "submitting": "Saving...",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Delete client",
+      "description": "Are you sure you want to delete {{name}} {{surname}}? This action cannot be undone.",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMax": "Name must be at most 255 characters",
+      "surnameRequired": "Surname is required",
+      "surnameMax": "Surname must be at most 255 characters",
+      "birthdayRequired": "Birthday is required",
+      "birthdayInvalid": "Enter a valid date in YYYY-MM-DD format",
+      "birthdayFuture": "Birthday cannot be in the future",
+      "ageTooYoung": "Client must be at least 16 years old",
+      "ageTooOld": "Client must be at most 100 years old",
+      "genderInvalid": "Select a valid gender",
+      "countryRequired": "Country is required",
+      "countryMax": "Country must be at most 255 characters",
+      "cityRequired": "City is required",
+      "cityMax": "City must be at most 255 characters",
+      "streetRequired": "Street is required",
+      "streetMax": "Street must be at most 255 characters"
+    }
+  },
+  "gender": {
+    "m": "Male",
+    "f": "Female",
+    "n/a": "N/A"
   }
 }

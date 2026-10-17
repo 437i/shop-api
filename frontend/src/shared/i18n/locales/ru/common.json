@@ -17,6 +17,7 @@
     "network": "Ошибка сети. Попробуйте ещё раз.",
     "invalidRequest": "Некорректный запрос",
     "server": "Ошибка сервера. Попробуйте позже.",
+    "notFound": "Клиент не найден",
     "invalidCredentials": "Неверные учётные данные",
     "authenticationUnavailable": "Сервис аутентификации недоступен",
     "missingToken": "Ошибка аутентификации: токен не получен"
@@ -37,6 +38,66 @@
       "gender": "Пол",
       "registrationDate": "Дата регистрации"
     },
-    "empty": "Клиенты не найдены"
+    "empty": "Клиенты не найдены",
+    "actions": {
+      "addClient": "Добавить клиента",
+      "menuLabel": "Действия: {{name}} {{surname}}",
+      "editAddress": "Изменить адрес",
+      "delete": "Удалить",
+      "deleteNamed": "Удалить клиента {{name}} {{surname}}"
+    },
+    "create": {
+      "title": "Добавить клиента",
+      "nameLabel": "Имя",
+      "surnameLabel": "Фамилия",
+      "birthdayLabel": "Дата рождения",
+      "genderLabel": "Пол",
+      "genderPlaceholder": "Выберите пол",
+      "countryLabel": "Страна",
+      "cityLabel": "Город",
+      "streetLabel": "Улица",
+      "submit": "Создать",
+      "submitting": "Создание...",
+      "cancel": "Отмена"
+    },
+    "editAddress": {
+      "title": "Изменить адрес",
+      "countryLabel": "Страна",
+      "cityLabel": "Город",
+      "streetLabel": "Улица",
+      "submit": "Сохранить",
+      "submitting": "Сохранение...",
+      "cancel": "Отмена"
+    },
+    "delete": {
+      "title": "Удалить клиента",
+      "description": "Удалить клиента {{name}} {{surname}}? Это действие нельзя отменить.",
+      "confirm": "Удалить",
+      "deleting": "Удаление...",
+      "cancel": "Отмена"
+    },
+    "validation": {
+      "nameRequired": "Укажите имя",
+      "nameMax": "Имя не должно превышать 255 символов",
+      "surnameRequired": "Укажите фамилию",
+      "surnameMax": "Фамилия не должна превышать 255 символов",
+      "birthdayRequired": "Укажите дату рождения",
+      "birthdayInvalid": "Введите корректную дату в формате YYYY-MM-DD",
+      "birthdayFuture": "Дата рождения не может быть в будущем",
+      "ageTooYoung": "Клиент должен быть не младше 16 лет",
+      "ageTooOld": "Клиент должен быть не старше 100 лет",
+      "genderInvalid": "Выберите корректное значение пола",
+      "countryRequired": "Укажите страну",
+      "countryMax": "Страна не должна превышать 255 символов",
+      "cityRequired": "Укажите город",
+      "cityMax": "Город не должен превышать 255 символов",
+      "streetRequired": "Укажите улицу",
+      "streetMax": "Улица не должна превышать 255 символов"
+    }
+  },
+  "gender": {
+    "m": "М",
+    "f": "Ж",
+    "n/a": "Н/Д"
   }
 }

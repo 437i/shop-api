@@ -59,6 +59,43 @@ describe("apiClient", () => {
       )
     })
 
+    it("sends a JSON PATCH with the Bearer token stored in localStorage", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+
+      await apiClient.patch("/clients/1/address", {
+        address: { country: "Россия", city: "Москва", street: "Ленина, 10" },
+      })
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe("/api/v1/clients/1/address")
+      expect(init).toMatchObject({ method: "PATCH" })
+      expect(init?.headers).toEqual({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${TOKEN}`,
+      })
+      expect(init?.body).toBe(
+        JSON.stringify({
+          address: { country: "Россия", city: "Москва", street: "Ленина, 10" },
+        }),
+      )
+    })
+
+    it("sends a DELETE without a body and with the Bearer token", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+
+      await apiClient.delete("/clients/1")
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe("/api/v1/clients/1")
+      expect(init).toMatchObject({ method: "DELETE" })
+      expect(init?.headers).toMatchObject({
+        Authorization: `Bearer ${TOKEN}`,
+      })
+      expect(init?.body).toBeUndefined()
+    })
+
     it("adds the Bearer token to GET requests", async () => {
       localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
       stubJsonResponse(200, [])
@@ -102,6 +139,22 @@ describe("apiClient", () => {
 
       await expect(apiClient.get("/clients/1")).resolves.toBeUndefined()
     })
+
+    it("returns undefined for 204 PATCH responses", async () => {
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+
+      await expect(
+        apiClient.patch("/clients/1/address", {
+          address: { country: "Россия", city: "Москва", street: "Ленина, 10" },
+        }),
+      ).resolves.toBeUndefined()
+    })
+
+    it("returns undefined for 204 DELETE responses", async () => {
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+
+      await expect(apiClient.delete("/clients/1")).resolves.toBeUndefined()
+    })
   })
 
   describe("401 handling", () => {
@@ -117,6 +170,26 @@ describe("apiClient", () => {
 
       expect(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)).toBeNull()
       expect(onUnauthorized).toHaveBeenCalledTimes(1)
+    })
+
+    it("resets the session for protected PATCH and DELETE endpoints", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      const onUnauthorized = vi.fn()
+      setUnauthorizedHandler(onUnauthorized)
+      stubJsonResponse(401, { error: "invalid or expired token" })
+
+      await expect(
+        apiClient.patch("/clients/1/address", {
+          address: { country: "Россия", city: "Москва", street: "Ленина, 10" },
+        }),
+      ).rejects.toMatchObject({ status: 401 })
+
+      await expect(apiClient.delete("/clients/1")).rejects.toMatchObject({
+        status: 401,
+      })
+
+      expect(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)).toBeNull()
+      expect(onUnauthorized).toHaveBeenCalledTimes(2)
     })
 
     it("keeps the session for a 401 from the auth endpoint", async () => {
@@ -150,6 +223,29 @@ describe("apiClient", () => {
         status: 400,
         responseMessage: "invalid credentials",
         message: "invalid credentials",
+      })
+    })
+
+    it("throws an ApiError with the ErrorResponse message for PATCH", async () => {
+      stubJsonResponse(400, { message: "invalid request body" })
+
+      await expect(
+        apiClient.patch("/clients/1/address", {
+          address: { country: "Россия", city: "Москва", street: "Ленина, 10" },
+        }),
+      ).rejects.toMatchObject({
+        status: 400,
+        responseMessage: "invalid request body",
+        message: "invalid request body",
+      })
+    })
+
+    it("falls back to a generic message when a DELETE response has no message", async () => {
+      stubJsonResponse(503, { error: "auth service unavailable" })
+
+      await expect(apiClient.delete("/clients/1")).rejects.toMatchObject({
+        status: 503,
+        message: "Request failed with status 503",
       })
     })
 

@@ -1,9 +1,17 @@
-import { UserGroupIcon } from "@hugeicons/core-free-icons"
+import { MoreHorizontalIcon, UserGroupIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
@@ -13,6 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { CreateClientDialog } from "@/pages/clients/CreateClientDialog"
+import { DeleteClientDialog } from "@/pages/clients/DeleteClientDialog"
+import { EditClientAddressDialog } from "@/pages/clients/EditClientAddressDialog"
+import { CLIENTS_QUERY_KEY } from "@/pages/clients/useClientMutations"
 import {
   ApiError,
   NetworkError,
@@ -23,8 +35,6 @@ import type { components } from "@/shared/api/generated/schema"
 type ClientResponse = components["schemas"]["internal_client.Response"]
 
 type TranslateFn = (key: string) => string
-
-const CLIENTS_QUERY_KEY = ["clients"]
 
 const SKELETON_ROWS = 5
 const SKELETON_COLUMNS = 5
@@ -106,7 +116,13 @@ function ClientsEmptyState() {
   )
 }
 
-function ClientsTable({ clients }: { clients: ClientResponse[] }) {
+interface ClientsTableProps {
+  clients: ClientResponse[]
+  onEditAddress: (client: ClientResponse) => void
+  onDelete: (client: ClientResponse) => void
+}
+
+function ClientsTable({ clients, onEditAddress, onDelete }: ClientsTableProps) {
   const { t } = useTranslation()
 
   return (
@@ -129,7 +145,45 @@ function ClientsTable({ clients }: { clients: ClientResponse[] }) {
               <TableCell>{client.birthday ?? ""}</TableCell>
               <TableCell>{client.gender ?? ""}</TableCell>
               <TableCell>
-                {formatRegistrationDate(client.registration_date)}
+                <div className="flex items-center justify-between gap-2">
+                  <span>{formatRegistrationDate(client.registration_date)}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t("clients.actions.menuLabel", {
+                            name: client.name ?? "",
+                            surname: client.surname ?? "",
+                          })}
+                        />
+                      }
+                    >
+                      <HugeiconsIcon
+                        icon={MoreHorizontalIcon}
+                        strokeWidth={2}
+                      />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => onEditAddress(client)}
+                      >
+                        {t("clients.actions.editAddress")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        variant="destructive"
+                        aria-label={t("clients.actions.deleteNamed", {
+                          name: client.name ?? "",
+                          surname: client.surname ?? "",
+                        })}
+                        onClick={() => onDelete(client)}
+                      >
+                        {t("clients.actions.delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -141,6 +195,11 @@ function ClientsTable({ clients }: { clients: ClientResponse[] }) {
 
 export function ClientsListPage() {
   const { t } = useTranslation()
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [clientToEditAddress, setClientToEditAddress] =
+    useState<ClientResponse | null>(null)
+  const [clientToDelete, setClientToDelete] =
+    useState<ClientResponse | null>(null)
 
   const clientsQuery = useQuery({
     queryKey: CLIENTS_QUERY_KEY,
@@ -153,7 +212,12 @@ export function ClientsListPage() {
 
   return (
     <section className="grid gap-4">
-      <h1 className="text-lg font-semibold">{t("navigation.clients")}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-lg font-semibold">{t("navigation.clients")}</h1>
+        <Button onClick={() => setIsCreateOpen(true)}>
+          {t("clients.actions.addClient")}
+        </Button>
+      </div>
       {clientsQuery.isLoading ? (
         <ClientsTableSkeleton label={t("clients.loading")} />
       ) : null}
@@ -166,8 +230,29 @@ export function ClientsListPage() {
         <ClientsEmptyState />
       ) : null}
       {clientsQuery.isSuccess && clientsQuery.data.length > 0 ? (
-        <ClientsTable clients={clientsQuery.data} />
+        <ClientsTable
+          clients={clientsQuery.data}
+          onEditAddress={setClientToEditAddress}
+          onDelete={setClientToDelete}
+        />
       ) : null}
+      <CreateClientDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <EditClientAddressDialog
+        client={clientToEditAddress}
+        onOpenChange={(open) => {
+          if (!open) {
+            setClientToEditAddress(null)
+          }
+        }}
+      />
+      <DeleteClientDialog
+        client={clientToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setClientToDelete(null)
+          }
+        }}
+      />
     </section>
   )
 }
