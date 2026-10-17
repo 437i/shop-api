@@ -31,21 +31,33 @@ func NewService(repo Repository, addressRepo address.Repository, txManager datab
 	}
 }
 
-func validateBirthday(bday time.Time) error {
-	now := time.Now()
-	switch {
-	case bday.After(now):
+func validateBirthday(bday, now time.Time) error {
+	today := now.UTC()
+	tYear, tMonth, tDay := today.Date()
+	bYear, bMonth, bDay := bday.Date()
+
+	bdayIsFuture := bYear > tYear ||
+		(bYear == tYear && (bMonth > tMonth || (bMonth == tMonth && bDay > tDay)))
+	if bdayIsFuture {
 		return ErrTimeTravel
-	case bday.Before(now.AddDate(-100, 0, 0)):
+	}
+
+	age := tYear - bYear
+	if bMonth > tMonth || (bMonth == tMonth && bDay > tDay) {
+		age--
+	}
+
+	switch {
+	case age > 100:
 		return ErrTooOld
-	case bday.After(now.AddDate(-16, 0, 0)):
+	case age < 16:
 		return ErrTooYoung
 	}
 	return nil
 }
 
 func (s *service) Create(ctx context.Context, client Client, addr address.Address) (Client, address.Address, error) {
-	if err := validateBirthday(client.Birthday); err != nil {
+	if err := validateBirthday(client.Birthday, time.Now()); err != nil {
 		return Client{}, address.Address{}, fmt.Errorf("validate bday: %w", err)
 	}
 
