@@ -8,7 +8,7 @@ import {
 } from "@/pages/clients/clientFormSchema"
 import type { ClientFormValues } from "@/pages/clients/clientFormSchema"
 
-const TODAY = new Date(2026, 9, 16)
+const TODAY = new Date(Date.UTC(2026, 9, 16))
 
 const VALID_VALUES: ClientFormValues = {
   name: "Ivan",
@@ -174,6 +174,7 @@ describe("birthday age boundaries", () => {
   it.each([
     "2026-02-30",
     "1900-02-29",
+    "2100-02-29",
     "2010-13-01",
     "2010-00-10",
     "2010-01-00",
@@ -193,7 +194,7 @@ describe("birthday age boundaries", () => {
     }
   })
 
-  it("accepts a leap day that exists", () => {
+  it("rejects a real leap day birthday below the minimum age", () => {
     const result = schema.safeParse({ ...VALID_VALUES, birthday: "2024-02-29" })
 
     expect(result.success).toBe(false)
@@ -204,6 +205,42 @@ describe("birthday age boundaries", () => {
       )
     }
   })
+})
+
+describe("UTC reference date", () => {
+  it.each([
+    new Date(Date.UTC(2026, 9, 16, 0, 0, 0, 0)),
+    new Date(Date.UTC(2026, 9, 16, 12, 30, 0)),
+    new Date(Date.UTC(2026, 9, 16, 23, 59, 59, 999)),
+    new Date("2026-10-16T23:30:00+14:00"),
+    new Date("2026-10-15T23:30:00-11:00"),
+  ])(
+    "uses the UTC calendar date of %s regardless of time of day and machine time zone",
+    (today) => {
+      const utcDaySchema = createClientFormSchema(today)
+
+      expect(
+        utcDaySchema.safeParse({ ...VALID_VALUES, birthday: "2010-10-16" })
+          .success,
+      ).toBe(true)
+      expect(
+        utcDaySchema.safeParse({ ...VALID_VALUES, birthday: "2010-10-17" })
+          .success,
+      ).toBe(false)
+      expect(
+        utcDaySchema.safeParse({ ...VALID_VALUES, birthday: "1926-10-16" })
+          .success,
+      ).toBe(true)
+      expect(
+        utcDaySchema.safeParse({ ...VALID_VALUES, birthday: "1925-10-16" })
+          .success,
+      ).toBe(false)
+      expect(
+        utcDaySchema.safeParse({ ...VALID_VALUES, birthday: "2026-10-17" })
+          .success,
+      ).toBe(false)
+    },
+  )
 })
 
 describe("resolveBirthdayError", () => {
@@ -240,6 +277,75 @@ describe("resolveBirthdayError", () => {
       }).success,
     ).toBe(false)
   })
+})
+
+describe("UTC midnight transition", () => {
+  it("recomputes age and the future check when the UTC calendar date changes", () => {
+    vi.useFakeTimers()
+
+    vi.setSystemTime(new Date(Date.UTC(2026, 9, 15, 23, 59, 59)))
+    expect(resolveBirthdayError("2010-10-16")).toBe(
+      "clients.validation.ageTooYoung",
+    )
+    expect(resolveBirthdayError("1925-10-16")).toBeNull()
+    expect(resolveBirthdayError("2026-10-16")).toBe(
+      "clients.validation.birthdayFuture",
+    )
+
+    vi.setSystemTime(new Date(Date.UTC(2026, 9, 16, 0, 0, 0)))
+    expect(resolveBirthdayError("2010-10-16")).toBeNull()
+    expect(resolveBirthdayError("1925-10-16")).toBe(
+      "clients.validation.ageTooOld",
+    )
+    expect(resolveBirthdayError("2026-10-16")).toBe(
+      "clients.validation.ageTooYoung",
+    )
+    expect(resolveBirthdayError("2026-10-17")).toBe(
+      "clients.validation.birthdayFuture",
+    )
+  })
+})
+
+describe("February 29 birthdays", () => {
+  it.each([
+    ["2016-02-28", "clients.validation.ageTooYoung"],
+    ["2016-02-29", null],
+    ["2016-03-01", null],
+  ] as const)(
+    "resolves birthday 2000-02-29 in a leap year on %s to %s",
+    (today, expected) => {
+      expect(
+        resolveBirthdayError("2000-02-29", new Date(`${today}T12:00:00Z`)),
+      ).toBe(expected)
+    },
+  )
+
+  it.each([
+    ["2024-02-28", null],
+    ["2024-02-29", null],
+    ["2024-03-01", null],
+    ["2025-02-28", null],
+    ["2025-03-01", "clients.validation.ageTooOld"],
+  ] as const)(
+    "resolves birthday 1924-02-29 on %s to %s",
+    (today, expected) => {
+      expect(
+        resolveBirthdayError("1924-02-29", new Date(`${today}T12:00:00Z`)),
+      ).toBe(expected)
+    },
+  )
+
+  it.each([
+    ["2100-02-28", "clients.validation.ageTooYoung"],
+    ["2100-03-01", null],
+  ] as const)(
+    "counts birthday 2084-02-29 in a non-leap year as March 1 on %s to %s",
+    (today, expected) => {
+      expect(
+        resolveBirthdayError("2084-02-29", new Date(`${today}T12:00:00Z`)),
+      ).toBe(expected)
+    },
+  )
 })
 
 describe("clientAddressSchema", () => {

@@ -25,13 +25,13 @@ function parseCalendarDate(value: string): CalendarDate | null {
   const month = Number(match[2])
   const day = Number(match[3])
 
-  const date = new Date(2000, month - 1, day)
-  date.setFullYear(year)
+  const date = new Date(0)
+  date.setUTCFullYear(year, month - 1, day)
 
   if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
   ) {
     return null
   }
@@ -41,9 +41,9 @@ function parseCalendarDate(value: string): CalendarDate | null {
 
 function toCalendarDate(date: Date): CalendarDate {
   return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
+    year: date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,
+    day: date.getUTCDate(),
   }
 }
 
