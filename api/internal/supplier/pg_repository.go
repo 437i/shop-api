@@ -107,11 +107,7 @@ func (r *repository) Delete(ctx context.Context, id uuid.UUID) error {
 
 	res, err := r.db(ctx).Exec(ctx, sql, args...)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.ForeignKeyViolation {
-			return ErrSupplierInUse
-		}
-		return fmt.Errorf("execute delete query: %w", err)
+		return mapDeleteError(err)
 	}
 
 	if res.RowsAffected() == 0 {
@@ -119,6 +115,16 @@ func (r *repository) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func mapDeleteError(err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) &&
+		(pgErr.Code == pgerrcode.ForeignKeyViolation || pgErr.Code == pgerrcode.RestrictViolation) {
+		return ErrSupplierInUse
+	}
+
+	return fmt.Errorf("execute delete query: %w", err)
 }
 
 func (r *repository) GetAll(ctx context.Context) ([]SupplierWithAddress, error) {
