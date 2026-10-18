@@ -21,14 +21,39 @@
 
 ## 5. Интеграционные проверки
 
-- [ ] 5.1 Запустить `npm run check` (typecheck, lint, unit-тесты, production build) и убедиться, что всё проходит без ошибок
-- [ ] 5.2 Запустить `npm run test:e2e` и убедиться, что все сценарии (auth, language, clients-management, suppliers-management, products-list) проходят без регрессий
-- [ ] 5.3 Ручная проверка против локального стека (Go API с dev-mock auth, PostgreSQL, Vite dev server, без перехвата API): (1) вход через UI и переход на `/products`, список сверить с реальным ответом `GET /api/v1/products`; (2) при пустой БД — empty state; (3) убедиться, что в БД есть поставщик (`supplier_id` обязателен в `CreateRequest`; при отсутствии — создать поставщика), создать товар через `POST /api/v1/products` с телом, содержащим обязательные `name`, `price`, `available_stock > 0`, `supplier_id` и вложенный `category` с `name` (категория создаётся сервером при необходимости через `GetOrCreate`), обновить страницу — товар виден с полями из `ListResponse`; (4) уменьшить остаток до 0 через `PATCH /api/v1/products/{id}/stock` и убедиться, что после обновления страницы товар отсутствует в списке (контракт возвращает только `available_stock > 0`); (5) удалить тестовый товар через `DELETE /api/v1/products/{id}` и убедиться, что тестовых данных не осталось; записать результат проверки в этот файл
-- [ ] 5.4 Проверить отсутствие новых ограничений окружения: раздел работает при dev-mock auth, новых зависимостей и переменных окружения нет (`package.json` не менялся, `import.meta.env`/`VITE_` не используются); при необходимости обновить `frontend/README.md` только фактами, если обнаружено расхождение; зафиксировать вывод в этом файле
+- [x] 5.1 Запустить `npm run check` (typecheck, lint, unit-тесты, production build) и убедиться, что всё проходит без ошибок
+- [x] 5.2 Запустить `npm run test:e2e` и убедиться, что все сценарии (auth, language, clients-management, suppliers-management, products-list) проходят без регрессий
+- [x] 5.3 Ручная проверка против локального стека (Go API с dev-mock auth, PostgreSQL, Vite dev server, без перехвата API): (1) вход через UI и переход на `/products`, список сверить с реальным ответом `GET /api/v1/products`; (2) при пустой БД — empty state; (3) убедиться, что в БД есть поставщик (`supplier_id` обязателен в `CreateRequest`; при отсутствии — создать поставщика), создать товар через `POST /api/v1/products` с телом, содержащим обязательные `name`, `price`, `available_stock > 0`, `supplier_id` и вложенный `category` с `name` (категория создаётся сервером при необходимости через `GetOrCreate`), обновить страницу — товар виден с полями из `ListResponse`; (4) уменьшить остаток до 0 через `PATCH /api/v1/products/{id}/stock` и убедиться, что после обновления страницы товар отсутствует в списке (контракт возвращает только `available_stock > 0`); (5) удалить тестовый товар через `DELETE /api/v1/products/{id}` и убедиться, что тестовых данных не осталось; записать результат проверки в этот файл
+- [x] 5.4 Проверить отсутствие новых ограничений окружения: раздел работает при dev-mock auth, новых зависимостей и переменных окружения нет (`package.json` не менялся, `import.meta.env`/`VITE_` не используются); при необходимости обновить `frontend/README.md` только фактами, если обнаружено расхождение; зафиксировать вывод в этом файле
 
 ## Результаты интеграционных проверок
 
-<!-- Заполняется при выполнении задач 5.1–5.4: команды, результаты, ручные шаги и вывод. -->
+### 5.1 — `npm run check`
+
+Запущено в `frontend/`: typecheck + lint + unit-тесты + production build. Без ошибок: Vitest — 12 файлов, 264 теста, все прошли; сборка `✓ built`. Единственное предупреждение — существовавшее ранее «Some chunks are larger than 500 kB» (не ошибка, к изменению не относится).
+
+### 5.2 — `npm run test:e2e`
+
+Playwright (chromium): 19/19 тестов прошли — auth (4), language (1), clients-management (4), suppliers-management (5), products-list (5). Регрессий нет.
+
+### 5.3 — Ручная проверка против локального стека
+
+Стек: docker-compose (`be3-postgres`, `be3-api` — Go API с `app.MockModule`, dev-mock auth) + Vite dev server (http://127.0.0.1:5173, прокси `/api/v1` → 127.0.0.1:8080), без перехвата API. Проверка выполнена скриптом Playwright, который работает в реальном браузере через форму входа UI и реальные запросы API; все мутации — прямыми запросами к API. 22/22 проверок пройдено:
+
+1. Вход через UI (dev-mock auth) и переход на `/products`: заголовок страницы и активный пункт меню отображаются; список сверен с реальным ответом `GET /api/v1/products`.
+2. Пустая БД (`GET /products` → `[]`): отображается empty state "No products in stock", таблица отсутствует.
+3. В БД поставщиков не было — создан через `POST /api/v1/suppliers`; товар создан через `POST /api/v1/products` с `name`, `price: "123.45"`, `available_stock: 4`, `supplier_id`, вложенным `category.name` (категория создана сервером через GetOrCreate). После обновления страницы строка таблицы совпадает с `ListResponse`: "Manual Check Fridge" / "Manual Check Category" / "123.45" / "4".
+4. `PATCH /api/v1/products/{id}/stock` `{ "amount": 4 }` → 204; `GET /api/v1/products` больше не содержит товар; `GET /api/v1/products/{id}` → 200 с `available_stock: 0` (товар существует, но не в списке). После обновления страницы товар отсутствует, снова отображается empty state.
+5. `DELETE /api/v1/products/{id}` → 204, повторный `GET /products/{id}` → 404; созданный поставщик удалён (`DELETE /suppliers/{id}` → 204); тестовая категория удалена триггером `trg_products_delete_orphan_category`. Итоговые `GET /products` и `GET /suppliers` совпадают с исходным состоянием; в БД `products=0, suppliers=0, categories=0, addresses=0` — тестовых данных не осталось.
+
+### 5.4 — Ограничения окружения
+
+- `frontend/package.json` и `frontend/package-lock.json` не изменялись (git diff пуст) — новых зависимостей нет.
+- `import.meta.env` / `VITE_` не используются в `frontend/src`, `frontend/e2e` и `frontend/vite.config.ts`.
+- Раздел работает при dev-mock auth (проверено в 5.3).
+- Расхождений с `frontend/README.md` не обнаружено: он уже описывает dev-mock auth и тестовую инфраструктуру; обновление README не требуется.
+
+**Вывод:** все интеграционные проверки 5.1–5.4 пройдены; изменение готово к ревью и архивации.
 
 ## Workflow follow-up
 
