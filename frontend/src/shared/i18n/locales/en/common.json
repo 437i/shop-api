@@ -19,6 +19,8 @@
     "server": "Server error. Please try again later.",
     "notFound": "Client not found",
     "supplierNotFound": "Supplier not found",
+    "productNotFound": "Product not found",
+    "insufficientStock": "Insufficient stock",
     "invalidCredentials": "Invalid credentials",
     "authenticationUnavailable": "Authentication service unavailable",
     "missingToken": "Authentication failed: no token received"
@@ -104,7 +106,59 @@
       "price": "Price",
       "availableStock": "Available Stock"
     },
-    "empty": "No products in stock"
+    "empty": "No products in stock",
+    "actions": {
+      "addProduct": "Add product",
+      "menuLabel": "Actions for {{name}}",
+      "decreaseStock": "Decrease stock",
+      "delete": "Delete",
+      "deleteNamed": "Delete product {{name}}"
+    },
+    "create": {
+      "title": "Add product",
+      "nameLabel": "Name",
+      "categoryLabel": "Category",
+      "priceLabel": "Price",
+      "stockLabel": "Available Stock",
+      "supplierLabel": "Supplier",
+      "supplierPlaceholder": "Select supplier",
+      "suppliersLoading": "Loading suppliers...",
+      "suppliersEmpty": "Create a supplier first",
+      "suppliersError": "Failed to load suppliers",
+      "submit": "Create",
+      "submitting": "Creating...",
+      "cancel": "Cancel"
+    },
+    "decreaseStock": {
+      "title": "Decrease stock",
+      "description": "Product: {{name}}. Current stock: {{stock}}.",
+      "amountLabel": "Amount",
+      "zeroWarning": "The stock will become 0 and the product will disappear from the list, because restocking is not supported.",
+      "submit": "Decrease",
+      "submitting": "Decreasing...",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Delete product",
+      "description": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMax": "Name must be at most 255 characters",
+      "categoryRequired": "Category is required",
+      "categoryMax": "Category must be at most 255 characters",
+      "priceRequired": "Price is required",
+      "priceInvalid": "Enter a valid price",
+      "stockRequired": "Available stock is required",
+      "stockInvalid": "Available stock must be a positive integer",
+      "supplierRequired": "Supplier is required",
+      "amountRequired": "Amount is required",
+      "amountInvalid": "Amount must be a positive integer",
+      "amountTooLarge": "Amount must not exceed the current stock"
+    }
   },
   "suppliers": {
     "loading": "Loading suppliers...",

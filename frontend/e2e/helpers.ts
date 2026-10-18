@@ -120,11 +120,16 @@ export interface MockApiOptions {
   updateSupplierAddressError?: MockApiError
   productsList?: MockProduct[]
   productsListError?: MockApiError
+  createProductError?: MockApiError
+  deleteProductError?: MockApiError
+  decreaseStockError?: MockApiError
 }
 
 export interface MockApiHandle {
   deleteRequests: string[]
   deleteSupplierRequests: string[]
+  deleteProductRequests: string[]
+  decreaseStockRequests: { id: string; amount: number }[]
 }
 
 function clientIdFromUrl(url: string): string {
@@ -137,6 +142,12 @@ function supplierIdFromUrl(url: string): string {
   const match = /\/suppliers\/([^/]+)(?:\/address)?$/.exec(
     new URL(url).pathname,
   )
+
+  return match?.[1] ? decodeURIComponent(match[1]) : ""
+}
+
+function productIdFromUrl(url: string): string {
+  const match = /\/products\/([^/]+)(?:\/stock)?$/.exec(new URL(url).pathname)
 
   return match?.[1] ? decodeURIComponent(match[1]) : ""
 }
@@ -155,8 +166,11 @@ export async function mockApi(
 ): Promise<MockApiHandle> {
   const clients = structuredClone(MOCK_CLIENTS)
   const suppliers = structuredClone(MOCK_SUPPLIERS)
+  const products = structuredClone(options.productsList ?? MOCK_PRODUCTS)
   const deleteRequests: string[] = []
   const deleteSupplierRequests: string[] = []
+  const deleteProductRequests: string[] = []
+  const decreaseStockRequests: { id: string; amount: number }[] = []
 
   await page.route(/\/api\/v1\/auth$/, (route) =>
     route.fulfill({
@@ -342,22 +356,115 @@ export async function mockApi(
   })
 
   await page.route(/\/api\/v1\/products$/, (route) => {
-    if (route.request().method() !== "GET") {
+    const request = route.request()
+
+    if (request.method() === "GET") {
+      if (options.productsListError) {
+        return fulfillError(route, options.productsListError)
+      }
+
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(
+          products.filter((product) => (product.available_stock ?? 0) > 0),
+        ),
+      })
+    }
+
+    if (request.method() === "POST") {
+      if (options.createProductError) {
+        return fulfillError(route, options.createProductError)
+      }
+
+      const body = request.postDataJSON() as {
+        name: string
+        category: { name: string }
+        price: string
+        available_stock: number
+        supplier_id: string
+      }
+
+      const category =
+        products.find((product) => product.category?.name === body.category.name)
+          ?.category ?? { id: crypto.randomUUID(), name: body.category.name }
+
+      const created: MockProduct = {
+        id: crypto.randomUUID(),
+        name: body.name,
+        category,
+        price: body.price,
+        available_stock: body.available_stock,
+      }
+
+      products.push(created)
+
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(created),
+      })
+    }
+
+    return route.fallback()
+  })
+
+  await page.route(/\/api\/v1\/products\/[^/]+\/stock$/, (route) => {
+    if (route.request().method() !== "PATCH") {
       return route.fallback()
     }
 
-    if (options.productsListError) {
-      return fulfillError(route, options.productsListError)
+    const id = productIdFromUrl(route.request().url())
+    const body = route.request().postDataJSON() as { amount: number }
+
+    decreaseStockRequests.push({ id, amount: body.amount })
+
+    if (options.decreaseStockError) {
+      return fulfillError(route, options.decreaseStockError)
     }
 
-    return route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(options.productsList ?? MOCK_PRODUCTS),
-    })
+    const product = products.find((entry) => entry.id === id)
+
+    if (!product) {
+      return fulfillError(route, { status: 404, message: "product not found" })
+    }
+
+    if (body.amount > (product.available_stock ?? 0)) {
+      return fulfillError(route, { status: 409, message: "insufficient stock" })
+    }
+
+    product.available_stock = (product.available_stock ?? 0) - body.amount
+
+    return route.fulfill({ status: 204 })
   })
 
-  return { deleteRequests, deleteSupplierRequests }
+  await page.route(/\/api\/v1\/products\/[^/]+$/, (route) => {
+    if (route.request().method() !== "DELETE") {
+      return route.fallback()
+    }
+
+    const id = productIdFromUrl(route.request().url())
+    deleteProductRequests.push(id)
+
+    if (options.deleteProductError) {
+      return fulfillError(route, options.deleteProductError)
+    }
+
+    const index = products.findIndex((entry) => entry.id === id)
+
+    if (index >= 0) {
+      products.splice(index, 1)
+    }
+
+    return route.fulfill({ status: 204 })
+  })
+
+  return {
+    deleteRequests,
+    deleteSupplierRequests,
+    deleteProductRequests,
+    decreaseStockRequests,
+  }
 }
 
 export async function login(page: Page): Promise<void> {

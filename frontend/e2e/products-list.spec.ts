@@ -56,10 +56,7 @@ test("should show the product list with the column values", async ({
       row.getByRole("cell", { name: product.price, exact: true }),
     ).toBeVisible()
     await expect(
-      row.getByRole("cell", {
-        name: String(product.available_stock),
-        exact: true,
-      }),
+      row.getByText(String(product.available_stock), { exact: true }),
     ).toBeVisible()
   }
 })

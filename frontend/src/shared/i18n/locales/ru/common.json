@@ -19,6 +19,8 @@
     "server": "Ошибка сервера. Попробуйте позже.",
     "notFound": "Клиент не найден",
     "supplierNotFound": "Поставщик не найден",
+    "productNotFound": "Товар не найден",
+    "insufficientStock": "Недостаточно товара на складе",
     "invalidCredentials": "Неверные учётные данные",
     "authenticationUnavailable": "Сервис аутентификации недоступен",
     "missingToken": "Ошибка аутентификации: токен не получен"
@@ -104,7 +106,59 @@
       "price": "Цена",
       "availableStock": "Доступный остаток"
     },
-    "empty": "Нет товаров в наличии"
+    "empty": "Нет товаров в наличии",
+    "actions": {
+      "addProduct": "Добавить товар",
+      "menuLabel": "Действия: {{name}}",
+      "decreaseStock": "Уменьшить остаток",
+      "delete": "Удалить",
+      "deleteNamed": "Удалить товар {{name}}"
+    },
+    "create": {
+      "title": "Добавить товар",
+      "nameLabel": "Название",
+      "categoryLabel": "Категория",
+      "priceLabel": "Цена",
+      "stockLabel": "Доступный остаток",
+      "supplierLabel": "Поставщик",
+      "supplierPlaceholder": "Выберите поставщика",
+      "suppliersLoading": "Загрузка поставщиков...",
+      "suppliersEmpty": "Сначала создайте поставщика",
+      "suppliersError": "Не удалось загрузить поставщиков",
+      "submit": "Создать",
+      "submitting": "Создание...",
+      "cancel": "Отмена"
+    },
+    "decreaseStock": {
+      "title": "Уменьшить остаток",
+      "description": "Товар: {{name}}. Текущий остаток: {{stock}}.",
+      "amountLabel": "Количество",
+      "zeroWarning": "Остаток станет 0, и товар исчезнет из списка, так как пополнение остатка не поддерживается.",
+      "submit": "Уменьшить",
+      "submitting": "Уменьшение...",
+      "cancel": "Отмена"
+    },
+    "delete": {
+      "title": "Удалить товар",
+      "description": "Удалить товар {{name}}? Это действие нельзя отменить.",
+      "confirm": "Удалить",
+      "deleting": "Удаление...",
+      "cancel": "Отмена"
+    },
+    "validation": {
+      "nameRequired": "Укажите название",
+      "nameMax": "Название не должно превышать 255 символов",
+      "categoryRequired": "Укажите категорию",
+      "categoryMax": "Категория не должна превышать 255 символов",
+      "priceRequired": "Укажите цену",
+      "priceInvalid": "Введите корректную цену",
+      "stockRequired": "Укажите доступный остаток",
+      "stockInvalid": "Доступный остаток должен быть целым положительным числом",
+      "supplierRequired": "Выберите поставщика",
+      "amountRequired": "Укажите количество",
+      "amountInvalid": "Количество должно быть целым положительным числом",
+      "amountTooLarge": "Количество не должно превышать текущий остаток"
+    }
   },
   "suppliers": {
     "loading": "Загрузка поставщиков...",

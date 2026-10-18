@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, render, screen, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { I18nextProvider } from "react-i18next"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
@@ -167,7 +168,56 @@ describe("ProductsListPage", () => {
     ])
   })
 
-  it("renders empty cells when category and optional fields are missing", async () => {
+  it("shows the add product button in the toolbar", async () => {
+    stubJsonResponse(200, PRODUCTS)
+    renderPage()
+
+    expect(
+      await screen.findByRole("button", { name: "Add product" }),
+    ).toBeInTheDocument()
+  })
+
+  it("renders an actions menu in every product row", async () => {
+    stubJsonResponse(200, PRODUCTS)
+    renderPage()
+
+    expect(await screen.findByRole("table")).toBeInTheDocument()
+
+    const rows = within(screen.getByRole("table")).getAllByRole("row")
+    expect(
+      within(rows[1]!).getByRole("button", {
+        name: "Actions for Liebherr CNel 4313",
+      }),
+    ).toBeInTheDocument()
+    expect(
+      within(rows[2]!).getByRole("button", {
+        name: "Actions for Bosch Serie 6",
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it("shows the decrease stock and delete items in the row actions menu", async () => {
+    const user = userEvent.setup()
+    stubJsonResponse(200, PRODUCTS)
+    renderPage()
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Actions for Liebherr CNel 4313",
+      }),
+    )
+
+    expect(
+      await screen.findByRole("menuitem", { name: "Decrease stock" }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("menuitem", {
+        name: "Delete product Liebherr CNel 4313",
+      }),
+    ).toBeInTheDocument()
+  })
+
+  it("renders the empty cells when category and optional fields are missing", async () => {
     stubJsonResponse(200, [{ id: "3", name: "Unknown product" }])
     renderPage()
 
