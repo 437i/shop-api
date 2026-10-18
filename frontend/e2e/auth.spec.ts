@@ -28,8 +28,11 @@ test("should login with mocked API and navigate to clients", async ({
   ).toBeVisible()
   await expect(page.getByRole("cell", { name: "m", exact: true })).toBeVisible()
   await expect(
-    page.getByRole("button", { name: "Products", exact: true }),
-  ).toBeDisabled()
+    page.getByRole("link", { name: "Products", exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole("link", { name: "Products", exact: true }),
+  ).toHaveAttribute("href", "/products")
   await expect(
     page.getByRole("link", { name: "Suppliers", exact: true }),
   ).toBeVisible()

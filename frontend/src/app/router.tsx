@@ -4,6 +4,7 @@ import { Navigate, Outlet, createBrowserRouter } from "react-router"
 import { NotFoundPage } from "@/pages/NotFoundPage"
 import { LoginPage } from "@/pages/auth/LoginPage"
 import { ClientsListPage } from "@/pages/clients/ClientsListPage"
+import { ProductsListPage } from "@/pages/products/ProductsListPage"
 import { SuppliersListPage } from "@/pages/suppliers/SuppliersListPage"
 
 import { AdminLayout } from "./AdminLayout"
@@ -22,6 +23,7 @@ export const routes: RouteObject[] = [
     ),
     children: [
       { path: "/clients", element: <ClientsListPage /> },
+      { path: "/products", element: <ProductsListPage /> },
       { path: "/suppliers", element: <SuppliersListPage /> },
     ],
   },

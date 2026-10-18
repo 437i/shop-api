@@ -96,6 +96,16 @@
       "streetMax": "Street must be at most 255 characters"
     }
   },
+  "products": {
+    "loading": "Loading products...",
+    "columns": {
+      "name": "Name",
+      "category": "Category",
+      "price": "Price",
+      "availableStock": "Available Stock"
+    },
+    "empty": "No products in stock"
+  },
   "suppliers": {
     "loading": "Loading suppliers...",
     "columns": {

@@ -98,7 +98,10 @@ describe("router", () => {
     expect(screen.getByRole("link", { name: "Clients" })).toHaveAttribute(
       "data-active",
     )
-    expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
+    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
+      "href",
+      "/products",
+    )
     expect(screen.getByRole("link", { name: "Suppliers" })).toHaveAttribute(
       "href",
       "/suppliers",
@@ -124,7 +127,28 @@ describe("router", () => {
     expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
       "data-active",
     )
-    expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
+    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
+      "href",
+      "/products",
+    )
+  })
+
+  it("keeps authenticated access to /products and renders the page heading", async () => {
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+    const router = renderApp("/products")
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/products"),
+    )
+    expect(
+      await screen.findByRole("heading", { name: "Products" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
   })
 
   it("redirects the root path to /clients", async () => {

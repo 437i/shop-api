@@ -28,6 +28,14 @@ function renderLayout(initialPath = "/clients") {
         ),
       },
       {
+        path: "/products",
+        element: (
+          <AdminLayout>
+            <p>Products content</p>
+          </AdminLayout>
+        ),
+      },
+      {
         path: "/suppliers",
         element: (
           <AdminLayout>
@@ -57,19 +65,34 @@ describe("AdminLayout", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("renders Clients active, Suppliers as a link and Products disabled", () => {
+  it("renders Clients active and Products and Suppliers as links", () => {
     renderLayout()
 
     const clientsLink = screen.getByRole("link", { name: "Clients" })
     expect(clientsLink).toHaveAttribute("href", "/clients")
     expect(clientsLink).toHaveAttribute("data-active")
 
+    const productsLink = screen.getByRole("link", { name: "Products" })
+    expect(productsLink).toHaveAttribute("href", "/products")
+    expect(productsLink).not.toHaveAttribute("data-active")
+
     const suppliersLink = screen.getByRole("link", { name: "Suppliers" })
     expect(suppliersLink).toHaveAttribute("href", "/suppliers")
     expect(suppliersLink).not.toHaveAttribute("data-active")
 
-    expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
     expect(screen.getByText("Clients content")).toBeInTheDocument()
+  })
+
+  it("marks Products active when the route is /products", () => {
+    renderLayout("/products")
+
+    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByText("Products content")).toBeInTheDocument()
   })
 
   it("marks Suppliers active when the route is /suppliers", () => {
@@ -102,13 +125,22 @@ describe("AdminLayout", () => {
     )
   })
 
-  it("does not navigate when a disabled menu item is clicked", async () => {
+  it("navigates to /products when the Products menu item is clicked", async () => {
     const user = userEvent.setup()
     const { router } = renderLayout()
 
-    await user.click(screen.getByRole("button", { name: "Products" }))
+    await user.click(screen.getByRole("link", { name: "Products" }))
 
-    expect(router.state.location.pathname).toBe("/clients")
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/products"),
+    )
+    expect(screen.getByText("Products content")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
   })
 
   it("switches the interface language between EN and RU", async () => {

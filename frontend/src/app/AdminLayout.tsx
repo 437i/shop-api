@@ -33,6 +33,7 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
   const queryClient = useQueryClient()
 
   const isClientsActive = location.pathname === "/clients"
+  const isProductsActive = location.pathname === "/products"
   const isSuppliersActive = location.pathname === "/suppliers"
 
   const language = i18n.resolvedLanguage === "ru" ? "ru" : "en"
@@ -64,7 +65,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
+                  <SidebarMenuButton
+                    isActive={isProductsActive}
+                    render={<Link to="/products" />}
+                  >
                     <HugeiconsIcon icon={PackageIcon} strokeWidth={2} />
                     <span>{t("navigation.products")}</span>
                   </SidebarMenuButton>

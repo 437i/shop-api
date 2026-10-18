@@ -30,6 +30,47 @@ export const MOCK_SUPPLIERS: MockSupplier[] = [
   },
 ]
 
+export interface MockProduct {
+  id: string
+  name: string
+  category?: { id: string; name: string }
+  price?: string
+  available_stock?: number
+}
+
+export const MOCK_PRODUCTS: MockProduct[] = [
+  {
+    id: "44444444-4444-4444-4444-444444444444",
+    name: "Liebherr CNel 4313",
+    category: {
+      id: "55555555-5555-5555-5555-555555555551",
+      name: "Refrigerators",
+    },
+    price: "999.99",
+    available_stock: 5,
+  },
+  {
+    id: "44444444-4444-4444-4444-444444444445",
+    name: "Bosch SMV6ZCX49E",
+    category: {
+      id: "55555555-5555-5555-5555-555555555552",
+      name: "Dishwashers",
+    },
+    price: "749.00",
+    available_stock: 12,
+  },
+  {
+    id: "44444444-4444-4444-4444-444444444446",
+    name: "Samsung WW90T554DAW",
+    category: {
+      id: "55555555-5555-5555-5555-555555555553",
+      name: "Washing machines",
+    },
+    price: "649.50",
+    available_stock: 3,
+  },
+]
+
 export interface MockClient {
   id: string
   name: string
@@ -77,6 +118,8 @@ export interface MockApiOptions {
   createSupplierError?: MockApiError
   deleteSupplierError?: MockApiError
   updateSupplierAddressError?: MockApiError
+  productsList?: MockProduct[]
+  productsListError?: MockApiError
 }
 
 export interface MockApiHandle {
@@ -296,6 +339,22 @@ export async function mockApi(
     }
 
     return route.fulfill({ status: 204 })
+  })
+
+  await page.route(/\/api\/v1\/products$/, (route) => {
+    if (route.request().method() !== "GET") {
+      return route.fallback()
+    }
+
+    if (options.productsListError) {
+      return fulfillError(route, options.productsListError)
+    }
+
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(options.productsList ?? MOCK_PRODUCTS),
+    })
   })
 
   return { deleteRequests, deleteSupplierRequests }
