@@ -31,8 +31,11 @@ test("should login with mocked API and navigate to clients", async ({
     page.getByRole("button", { name: "Products", exact: true }),
   ).toBeDisabled()
   await expect(
-    page.getByRole("button", { name: "Suppliers", exact: true }),
-  ).toBeDisabled()
+    page.getByRole("link", { name: "Suppliers", exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole("link", { name: "Suppliers", exact: true }),
+  ).toHaveAttribute("href", "/suppliers")
 
   const token = await page.evaluate(() => localStorage.getItem("auth_token"))
   expect(token).toBe(MOCK_TOKEN)

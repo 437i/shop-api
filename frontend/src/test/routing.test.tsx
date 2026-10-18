@@ -95,11 +95,36 @@ describe("router", () => {
     expect(
       await screen.findByRole("link", { name: "Clients" }),
     ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Clients" })).toHaveAttribute(
+      "data-active",
+    )
     expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
-    expect(screen.getByRole("button", { name: "Suppliers" })).toBeDisabled()
+    expect(screen.getByRole("link", { name: "Suppliers" })).toHaveAttribute(
+      "href",
+      "/suppliers",
+    )
     expect(
       screen.getByRole("button", { name: "Logout" }),
     ).toBeInTheDocument()
+  })
+
+  it("keeps authenticated access to /suppliers and renders the admin layout", async () => {
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+    const router = renderApp("/suppliers")
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/suppliers"),
+    )
+    expect(
+      await screen.findByRole("heading", { name: "Suppliers" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Suppliers" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
   })
 
   it("redirects the root path to /clients", async () => {

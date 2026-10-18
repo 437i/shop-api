@@ -27,6 +27,14 @@ function renderLayout(initialPath = "/clients") {
           </AdminLayout>
         ),
       },
+      {
+        path: "/suppliers",
+        element: (
+          <AdminLayout>
+            <p>Suppliers content</p>
+          </AdminLayout>
+        ),
+      },
       { path: "/auth/login", element: <p>Login page</p> },
     ],
     { initialEntries: [initialPath] },
@@ -49,16 +57,49 @@ describe("AdminLayout", () => {
     await i18n.changeLanguage("en")
   })
 
-  it("renders the navigation menu with Clients active and Products/Suppliers disabled", () => {
+  it("renders Clients active, Suppliers as a link and Products disabled", () => {
     renderLayout()
 
     const clientsLink = screen.getByRole("link", { name: "Clients" })
     expect(clientsLink).toHaveAttribute("href", "/clients")
     expect(clientsLink).toHaveAttribute("data-active")
 
+    const suppliersLink = screen.getByRole("link", { name: "Suppliers" })
+    expect(suppliersLink).toHaveAttribute("href", "/suppliers")
+    expect(suppliersLink).not.toHaveAttribute("data-active")
+
     expect(screen.getByRole("button", { name: "Products" })).toBeDisabled()
-    expect(screen.getByRole("button", { name: "Suppliers" })).toBeDisabled()
     expect(screen.getByText("Clients content")).toBeInTheDocument()
+  })
+
+  it("marks Suppliers active when the route is /suppliers", () => {
+    renderLayout("/suppliers")
+
+    expect(screen.getByRole("link", { name: "Suppliers" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByText("Suppliers content")).toBeInTheDocument()
+  })
+
+  it("navigates to /suppliers when the Suppliers menu item is clicked", async () => {
+    const user = userEvent.setup()
+    const { router } = renderLayout()
+
+    await user.click(screen.getByRole("link", { name: "Suppliers" }))
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/suppliers"),
+    )
+    expect(screen.getByText("Suppliers content")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Suppliers" })).toHaveAttribute(
+      "data-active",
+    )
+    expect(screen.getByRole("link", { name: "Clients" })).not.toHaveAttribute(
+      "data-active",
+    )
   })
 
   it("does not navigate when a disabled menu item is clicked", async () => {

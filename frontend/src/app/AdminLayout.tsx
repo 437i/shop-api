@@ -9,7 +9,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router"
+import { Link, useLocation, useNavigate } from "react-router"
 
 import {
   Sidebar,
@@ -28,8 +28,12 @@ import { clearAuthToken } from "@/shared/api/client"
 
 export function AdminLayout({ children }: { children?: ReactNode }) {
   const { t, i18n } = useTranslation()
+  const location = useLocation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  const isClientsActive = location.pathname === "/clients"
+  const isSuppliersActive = location.pathname === "/suppliers"
 
   const language = i18n.resolvedLanguage === "ru" ? "ru" : "en"
 
@@ -51,7 +55,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton isActive render={<Link to="/clients" />}>
+                  <SidebarMenuButton
+                    isActive={isClientsActive}
+                    render={<Link to="/clients" />}
+                  >
                     <HugeiconsIcon icon={UserGroupIcon} strokeWidth={2} />
                     <span>{t("navigation.clients")}</span>
                   </SidebarMenuButton>
@@ -63,7 +70,10 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled>
+                  <SidebarMenuButton
+                    isActive={isSuppliersActive}
+                    render={<Link to="/suppliers" />}
+                  >
                     <HugeiconsIcon icon={DeliveryTruck01Icon} strokeWidth={2} />
                     <span>{t("navigation.suppliers")}</span>
                   </SidebarMenuButton>

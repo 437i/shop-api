@@ -8,6 +8,28 @@ export interface MockClientAddress {
   street?: string
 }
 
+export interface MockSupplierAddress {
+  country?: string
+  city?: string
+  street?: string
+}
+
+export interface MockSupplier {
+  id: string
+  name: string
+  phone_number: string
+  address: MockSupplierAddress
+}
+
+export const MOCK_SUPPLIERS: MockSupplier[] = [
+  {
+    id: "33333333-3333-3333-3333-333333333333",
+    name: "ООО Моя Оборона",
+    phone_number: "+79991234567",
+    address: { country: "Russia", city: "Moscow", street: "Tverskaya 1" },
+  },
+]
+
 export interface MockClient {
   id: string
   name: string
@@ -52,14 +74,26 @@ export interface MockApiOptions {
   createError?: MockApiError
   deleteError?: MockApiError
   updateAddressError?: MockApiError
+  createSupplierError?: MockApiError
+  deleteSupplierError?: MockApiError
+  updateSupplierAddressError?: MockApiError
 }
 
 export interface MockApiHandle {
   deleteRequests: string[]
+  deleteSupplierRequests: string[]
 }
 
 function clientIdFromUrl(url: string): string {
   const match = /\/clients\/([^/]+)(?:\/address)?$/.exec(new URL(url).pathname)
+
+  return match?.[1] ? decodeURIComponent(match[1]) : ""
+}
+
+function supplierIdFromUrl(url: string): string {
+  const match = /\/suppliers\/([^/]+)(?:\/address)?$/.exec(
+    new URL(url).pathname,
+  )
 
   return match?.[1] ? decodeURIComponent(match[1]) : ""
 }
@@ -77,7 +111,9 @@ export async function mockApi(
   options: MockApiOptions = {},
 ): Promise<MockApiHandle> {
   const clients = structuredClone(MOCK_CLIENTS)
+  const suppliers = structuredClone(MOCK_SUPPLIERS)
   const deleteRequests: string[] = []
+  const deleteSupplierRequests: string[] = []
 
   await page.route(/\/api\/v1\/auth$/, (route) =>
     route.fulfill({
@@ -177,7 +213,92 @@ export async function mockApi(
     return route.fulfill({ status: 204 })
   })
 
-  return { deleteRequests }
+  await page.route(/\/api\/v1\/suppliers$/, (route) => {
+    const request = route.request()
+
+    if (request.method() === "GET") {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(suppliers),
+      })
+    }
+
+    if (request.method() === "POST") {
+      if (options.createSupplierError) {
+        return fulfillError(route, options.createSupplierError)
+      }
+
+      const body = request.postDataJSON() as {
+        name: string
+        phone_number: string
+        address: MockSupplierAddress
+      }
+
+      const created: MockSupplier = {
+        id: crypto.randomUUID(),
+        name: body.name,
+        phone_number: body.phone_number,
+        address: body.address,
+      }
+
+      suppliers.push(created)
+
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify(created),
+      })
+    }
+
+    return route.fallback()
+  })
+
+  await page.route(/\/api\/v1\/suppliers\/[^/]+\/address$/, (route) => {
+    if (route.request().method() !== "PATCH") {
+      return route.fallback()
+    }
+
+    if (options.updateSupplierAddressError) {
+      return fulfillError(route, options.updateSupplierAddressError)
+    }
+
+    const supplier = suppliers.find(
+      (entry) => entry.id === supplierIdFromUrl(route.request().url()),
+    )
+    const body = route.request().postDataJSON() as {
+      address: MockSupplierAddress
+    }
+
+    if (supplier) {
+      supplier.address = body.address
+    }
+
+    return route.fulfill({ status: 204 })
+  })
+
+  await page.route(/\/api\/v1\/suppliers\/[^/]+$/, (route) => {
+    if (route.request().method() !== "DELETE") {
+      return route.fallback()
+    }
+
+    const id = supplierIdFromUrl(route.request().url())
+    deleteSupplierRequests.push(id)
+
+    if (options.deleteSupplierError) {
+      return fulfillError(route, options.deleteSupplierError)
+    }
+
+    const index = suppliers.findIndex((entry) => entry.id === id)
+
+    if (index >= 0) {
+      suppliers.splice(index, 1)
+    }
+
+    return route.fulfill({ status: 204 })
+  })
+
+  return { deleteRequests, deleteSupplierRequests }
 }
 
 export async function login(page: Page): Promise<void> {

@@ -18,6 +18,7 @@
     "invalidRequest": "Некорректный запрос",
     "server": "Ошибка сервера. Попробуйте позже.",
     "notFound": "Клиент не найден",
+    "supplierNotFound": "Поставщик не найден",
     "invalidCredentials": "Неверные учётные данные",
     "authenticationUnavailable": "Сервис аутентификации недоступен",
     "missingToken": "Ошибка аутентификации: токен не получен"
@@ -87,6 +88,63 @@
       "ageTooYoung": "Клиент должен быть не младше 16 лет",
       "ageTooOld": "Клиент должен быть не старше 100 лет",
       "genderInvalid": "Выберите корректное значение пола",
+      "countryRequired": "Укажите страну",
+      "countryMax": "Страна не должна превышать 255 символов",
+      "cityRequired": "Укажите город",
+      "cityMax": "Город не должен превышать 255 символов",
+      "streetRequired": "Укажите улицу",
+      "streetMax": "Улица не должна превышать 255 символов"
+    }
+  },
+  "suppliers": {
+    "loading": "Загрузка поставщиков...",
+    "columns": {
+      "name": "Имя",
+      "phone": "Телефон",
+      "country": "Страна",
+      "city": "Город",
+      "street": "Улица"
+    },
+    "empty": "Поставщики не найдены",
+    "actions": {
+      "addSupplier": "Добавить поставщика",
+      "menuLabel": "Действия: {{name}}",
+      "editAddress": "Изменить адрес",
+      "delete": "Удалить",
+      "deleteNamed": "Удалить поставщика {{name}}"
+    },
+    "create": {
+      "title": "Добавить поставщика",
+      "nameLabel": "Имя",
+      "phoneLabel": "Телефон",
+      "countryLabel": "Страна",
+      "cityLabel": "Город",
+      "streetLabel": "Улица",
+      "submit": "Создать",
+      "submitting": "Создание...",
+      "cancel": "Отмена"
+    },
+    "editAddress": {
+      "title": "Изменить адрес",
+      "countryLabel": "Страна",
+      "cityLabel": "Город",
+      "streetLabel": "Улица",
+      "submit": "Сохранить",
+      "submitting": "Сохранение...",
+      "cancel": "Отмена"
+    },
+    "delete": {
+      "title": "Удалить поставщика",
+      "description": "Удалить поставщика {{name}}? Это действие нельзя отменить.",
+      "confirm": "Удалить",
+      "deleting": "Удаление...",
+      "cancel": "Отмена"
+    },
+    "validation": {
+      "nameRequired": "Укажите имя",
+      "nameMax": "Имя не должно превышать 255 символов",
+      "phoneRequired": "Укажите телефон",
+      "phoneInvalid": "Введите корректный номер телефона",
       "countryRequired": "Укажите страну",
       "countryMax": "Страна не должна превышать 255 символов",
       "cityRequired": "Укажите город",

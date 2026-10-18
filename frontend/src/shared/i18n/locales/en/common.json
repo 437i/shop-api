@@ -18,6 +18,7 @@
     "invalidRequest": "Invalid request",
     "server": "Server error. Please try again later.",
     "notFound": "Client not found",
+    "supplierNotFound": "Supplier not found",
     "invalidCredentials": "Invalid credentials",
     "authenticationUnavailable": "Authentication service unavailable",
     "missingToken": "Authentication failed: no token received"
@@ -87,6 +88,63 @@
       "ageTooYoung": "Client must be at least 16 years old",
       "ageTooOld": "Client must be at most 100 years old",
       "genderInvalid": "Select a valid gender",
+      "countryRequired": "Country is required",
+      "countryMax": "Country must be at most 255 characters",
+      "cityRequired": "City is required",
+      "cityMax": "City must be at most 255 characters",
+      "streetRequired": "Street is required",
+      "streetMax": "Street must be at most 255 characters"
+    }
+  },
+  "suppliers": {
+    "loading": "Loading suppliers...",
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "country": "Country",
+      "city": "City",
+      "street": "Street"
+    },
+    "empty": "No suppliers found",
+    "actions": {
+      "addSupplier": "Add supplier",
+      "menuLabel": "Actions for {{name}}",
+      "editAddress": "Edit address",
+      "delete": "Delete",
+      "deleteNamed": "Delete supplier {{name}}"
+    },
+    "create": {
+      "title": "Add supplier",
+      "nameLabel": "Name",
+      "phoneLabel": "Phone",
+      "countryLabel": "Country",
+      "cityLabel": "City",
+      "streetLabel": "Street",
+      "submit": "Create",
+      "submitting": "Creating...",
+      "cancel": "Cancel"
+    },
+    "editAddress": {
+      "title": "Edit address",
+      "countryLabel": "Country",
+      "cityLabel": "City",
+      "streetLabel": "Street",
+      "submit": "Save",
+      "submitting": "Saving...",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "title": "Delete supplier",
+      "description": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMax": "Name must be at most 255 characters",
+      "phoneRequired": "Phone is required",
+      "phoneInvalid": "Enter a valid phone number",
       "countryRequired": "Country is required",
       "countryMax": "Country must be at most 255 characters",
       "cityRequired": "City is required",
