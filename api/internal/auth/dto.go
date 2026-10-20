@@ -12,11 +12,6 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required" example:"$ExamplePass123!"`
 }
 
-func (r *RegisterRequest) Normalize() {
-	r.Name = strings.TrimSpace(r.Name)
-	r.Surname = strings.TrimSpace(r.Surname)
-}
-
 type LoginRequest struct {
 	Email    string `json:"email"    binding:"required" example:"email@example.com"`
 	Password string `json:"password" binding:"required" example:"$ExamplePass123!"`
@@ -29,3 +24,14 @@ type Response struct {
 type ResetRequest struct {
 	Email string `json:"email" binding:"required" example:"email@example.com"`
 }
+
+func normalizeEmail(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
+
+func (r *RegisterRequest) Normalize() {
+	r.Name = strings.TrimSpace(r.Name)
+	r.Surname = strings.TrimSpace(r.Surname)
+	r.Email = normalizeEmail(r.Email)
+}
+
+func (r *LoginRequest) Normalize() { r.Email = normalizeEmail(r.Email) }
+func (r *ResetRequest) Normalize() { r.Email = normalizeEmail(r.Email) }
