@@ -18,5 +18,5 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	fx.New(app.MockModule).Run()
+	fx.New(app.Module).Run()
 }
