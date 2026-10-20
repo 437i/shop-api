@@ -205,7 +205,7 @@ services:
     networks:
       - be3
 
-auth-postgres:
+  auth-postgres:
     image: postgres:18
     container_name: be3-auth-postgres
     environment:
@@ -224,7 +224,7 @@ auth-postgres:
     networks:
       - be3
 
-auth:
+  auth:
     build:
       context: .
       dockerfile: service_auth/Dockerfile
