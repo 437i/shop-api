@@ -34,6 +34,7 @@ func NewHandler(service Service) *Handler {
 // @Param 	 request body CreateRequest true "Client data"
 // @Success  201 {object} Response
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /clients [post]
 func (h *Handler) Create(c *gin.Context) {
@@ -78,6 +79,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param 	 id path string true "Client ID" format(uuid)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /clients/{id} [delete]
@@ -109,6 +111,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Param 		offset 	query int 	 false "Number of items to skip" minimum(0)
 // @Success 	200 {array}  Response
 // @Failure 	400 {object} response.ErrorResponse
+// @Failure     401 {object} response.ErrorResponse
 // @Failure 	500 {object} response.ErrorResponse
 // @Router 		/clients [get]
 func (h *Handler) GetList(c *gin.Context) {
@@ -138,6 +141,7 @@ func (h *Handler) GetList(c *gin.Context) {
 // @Param 		 id 	 path string 			   true "Client ID" format(uuid)
 // @Success 	 204
 // @Failure 	 400 {object} response.ErrorResponse
+// @Failure      401 {object} response.ErrorResponse
 // @Failure 	 404 {object} response.ErrorResponse
 // @Failure 	 500 {object} response.ErrorResponse
 // @Router 		 /clients/{id}/address [patch]

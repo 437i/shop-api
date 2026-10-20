@@ -38,6 +38,7 @@ func NewHandler(service Service) *Handler {
 // @Param 	 file body string true "Image bytes" format(binary)
 // @Success  201 {object} CreateResponse
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router   /products/{id}/image [post]
@@ -80,6 +81,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param 	 file body string true "Image bytes" format(binary)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /images/{id} [put]
@@ -119,6 +121,7 @@ func (h *Handler) Change(c *gin.Context) {
 // @Param 	 id path string true "Image ID" format(uuid)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /images/{id} [delete]
@@ -146,6 +149,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Param 	 id path string true "Image ID" format(uuid)
 // @Success  200 {string} string "Image binary data"
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router   /images/{id} [get]
@@ -175,6 +179,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Param 	 id path string true "Product ID" format(uuid)
 // @Success  200 {string} string "Image binary data"
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /products/{id}/image [get]

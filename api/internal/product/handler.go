@@ -35,6 +35,7 @@ func NewHandler(service Service) *Handler {
 // @Param 	 request body CreateRequest true "Product data"
 // @Success  201 {object} CreateResponse
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /products [post]
@@ -83,6 +84,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param 	 request body DecreaseStockRequest true "Amount to decrease by"
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  409 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
@@ -118,6 +120,7 @@ func (h *Handler) DecreaseStock(c *gin.Context) {
 // @Param 	 id path string true "Product ID" format(uuid)
 // @Success  200 {object} FullResponse
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /products/{id} [get]
@@ -144,6 +147,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 // @Produce  json
 // @Security BearerAuth
 // @Success  200 {array} ListResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /products [get]
 func (h *Handler) GetAll(c *gin.Context) {
@@ -164,6 +168,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Param 	 id path string true "Product ID" format(uuid)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /products/{id} [delete]

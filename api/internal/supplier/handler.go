@@ -35,6 +35,7 @@ func NewHandler(service Service) *Handler {
 // @Param 	 request body CreateRequest true "Supplier data"
 // @Success  201 {object} Response
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /suppliers [post]
 func (h *Handler) Create(c *gin.Context) {
@@ -75,6 +76,7 @@ func (h *Handler) Create(c *gin.Context) {
 // @Param 	 id 	 path string 			   true "Supplier ID" format(uuid)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /suppliers/{id}/address [patch]
@@ -116,6 +118,7 @@ func (h *Handler) UpdateAddress(c *gin.Context) {
 // @Param 	 id path string true "Supplier ID" format(uuid)
 // @Success  204
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /suppliers/{id} [delete]
@@ -141,6 +144,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Produce  json
 // @Security BearerAuth
 // @Success  200 {array}  Response
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /suppliers [get]
 func (h *Handler) GetAll(c *gin.Context) {
@@ -162,6 +166,7 @@ func (h *Handler) GetAll(c *gin.Context) {
 // @Param 	 id path string true "Supplier ID" format(uuid)
 // @Success  200 {object} Response
 // @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
 // @Failure  404 {object} response.ErrorResponse
 // @Failure  500 {object} response.ErrorResponse
 // @Router 	 /suppliers/{id} [get]
