@@ -33,6 +33,9 @@ func NewRouter(
 
 	protected := engine.Group("/api/v1")
 	protected.Use(middleware.Auth)
+	{
+		protected.POST("/change", auth.ChangePassword)
+	}
 
 	clients := protected.Group("/clients")
 	{

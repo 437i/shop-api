@@ -129,3 +129,26 @@ func (c *GRPCClient) ResetPassword(ctx context.Context, req ResetRequest) error 
 
 	return nil
 }
+
+func (c *GRPCClient) ChangePassword(ctx context.Context, req ChangeRequest, token string) error {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := c.client.ChangePassword(
+		ctx,
+		&authProto.ChangePasswordRequest{
+			Token:           token,
+			CurrentPassword: req.CurrentPassword,
+			NewPassword:     req.NewPassword,
+		},
+	)
+	if err != nil {
+		err = fromGRPC(err)
+		if errors.Is(err, ErrUnauthenticated) {
+			return ErrWrongPassword
+		}
+		return err
+	}
+
+	return nil
+}

@@ -13,6 +13,7 @@ type Service interface {
 	Register(ctx context.Context, req RegisterRequest) (Response, error)
 	Login(ctx context.Context, req LoginRequest) (Response, error)
 	ResetPassword(ctx context.Context, req ResetRequest) error
+	ChangePassword(ctx context.Context, req ChangeRequest, token string) error
 }
 
 type Handler struct {
@@ -101,6 +102,44 @@ func (h *Handler) Reset(c *gin.Context) {
 	if err := h.service.ResetPassword(c.Request.Context(), req); err != nil {
 		log.Printf("reset grpc error: %v", err)
 		response.Error(c, http.StatusBadGateway, "auth service error")
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// ChangePassword смена пароля аутентифицированного пользователя
+// @Summary  Change user password
+// @Tags 	 auth
+// @Accept   json
+// @Security BearerAuth
+// @Param 	 request body ChangeRequest true "Old + New passwords"
+// @Success  204
+// @Failure  400 {object} response.ErrorResponse
+// @Failure  401 {object} response.ErrorResponse
+// @Failure  502 {object} response.ErrorResponse
+// @Failure  503 {object} response.ErrorResponse
+// @Router   /change [post]
+func (h *Handler) ChangePassword(c *gin.Context) {
+	var req ChangeRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	token, err := tokenFromCtx(c.Request.Context())
+	if err != nil {
+		log.Printf("change: token from ctx: %v", err)
+		code, msg := MapErrToHTTP(err)
+		response.Error(c, code, msg)
+		return
+	}
+
+	if err := h.service.ChangePassword(c.Request.Context(), req, token); err != nil {
+		log.Printf("change grpc error: %v", err)
+		code, msg := MapErrToHTTP(err)
+		response.Error(c, code, msg)
 		return
 	}
 

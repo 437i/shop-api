@@ -25,6 +25,11 @@ type ResetRequest struct {
 	Email string `json:"email" binding:"required" example:"email@example.com"`
 }
 
+type ChangeRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required" example:"$OldExamplePass123!"`
+	NewPassword     string `json:"new_password"     binding:"required" example:"$NewExamplePass123!"`
+}
+
 func normalizeEmail(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
 
 func (r *RegisterRequest) Normalize() {
