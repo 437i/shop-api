@@ -1,16 +1,15 @@
 package auth
 
 import (
-	"errors"
 	"strings"
 )
 
 type RegisterRequest struct {
-	Name     string `json:"name"     binding:"required,max=255" example:"Иван"`
-	Surname  string `json:"surname"  binding:"required,max=255" example:"Иванов"`
-	Email    string `json:"email"    binding:"required,email"   example:"email@example.com"`
-	Phone    string `json:"phone"    binding:"required"         example:"+79991234567"`
-	Password string `json:"password" binding:"required,min=8"   example:"$ExamplePass123!"`
+	Name     string `json:"name"     binding:"required" example:"Иван"`
+	Surname  string `json:"surname"  binding:"required" example:"Иванов"`
+	Email    string `json:"email"    binding:"required" example:"email@example.com"`
+	Phone    string `json:"phone"    binding:"required" example:"+79991234567"`
+	Password string `json:"password" binding:"required" example:"$ExamplePass123!"`
 }
 
 func (r *RegisterRequest) Normalize() {
@@ -18,19 +17,9 @@ func (r *RegisterRequest) Normalize() {
 	r.Surname = strings.TrimSpace(r.Surname)
 }
 
-func (r RegisterRequest) Validate() error {
-	if r.Name == "" {
-		return errors.New("name empty")
-	}
-	if r.Surname == "" {
-		return errors.New("surname empty")
-	}
-	return nil
-}
-
 type LoginRequest struct {
-	Email    string `json:"email"    binding:"required,email" example:"email@example.com"`
-	Password string `json:"password" binding:"required"       example:"$ExamplePass123!"`
+	Email    string `json:"email"    binding:"required" example:"email@example.com"`
+	Password string `json:"password" binding:"required" example:"$ExamplePass123!"`
 }
 
 type Response struct {
@@ -38,5 +27,5 @@ type Response struct {
 }
 
 type ResetRequest struct {
-	Email string `json:"email" binding:"required,email" example:"email@example.com"`
+	Email string `json:"email" binding:"required" example:"email@example.com"`
 }
