@@ -32,7 +32,9 @@ func NewHandler(service Service) *Handler {
 // @Param 	request body RegisterRequest true "User data"
 // @Success 201 {object} Response
 // @Failure 400 {object} response.ErrorResponse
+// @Failure 409 {object} response.ErrorResponse
 // @Failure 502 {object} response.ErrorResponse
+// @Failure 503 {object} response.ErrorResponse
 // @Router  /register [post]
 func (h *Handler) Register(c *gin.Context) {
 	var req RegisterRequest
@@ -47,7 +49,8 @@ func (h *Handler) Register(c *gin.Context) {
 	resp, err := h.service.Register(c.Request.Context(), req)
 	if err != nil {
 		log.Printf("register grpc error: %v", err)
-		response.Error(c, http.StatusBadGateway, "auth service error")
+		code, msg := MapErrToHTTP(err)
+		response.Error(c, code, msg)
 		return
 	}
 
@@ -62,7 +65,9 @@ func (h *Handler) Register(c *gin.Context) {
 // @Param 	request body LoginRequest true "Credentials"
 // @Success 200 {object} Response
 // @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
 // @Failure 502 {object} response.ErrorResponse
+// @Failure 503 {object} response.ErrorResponse
 // @Router  /auth [post]
 func (h *Handler) Auth(c *gin.Context) {
 	var req LoginRequest
@@ -72,10 +77,13 @@ func (h *Handler) Auth(c *gin.Context) {
 		return
 	}
 
+	req.Normalize()
+
 	resp, err := h.service.Login(c.Request.Context(), req)
 	if err != nil {
 		log.Printf("login grpc error: %v", err)
-		response.Error(c, http.StatusBadGateway, "auth service error")
+		code, msg := MapErrToHTTP(err)
+		response.Error(c, code, msg)
 		return
 	}
 
@@ -90,6 +98,7 @@ func (h *Handler) Auth(c *gin.Context) {
 // @Success 204
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 502 {object} response.ErrorResponse
+// @Failure 503 {object} response.ErrorResponse
 // @Router  /reset [post]
 func (h *Handler) Reset(c *gin.Context) {
 	var req ResetRequest
@@ -99,9 +108,12 @@ func (h *Handler) Reset(c *gin.Context) {
 		return
 	}
 
+	req.Normalize()
+
 	if err := h.service.ResetPassword(c.Request.Context(), req); err != nil {
 		log.Printf("reset grpc error: %v", err)
-		response.Error(c, http.StatusBadGateway, "auth service error")
+		code, msg := MapErrToHTTP(err)
+		response.Error(c, code, msg)
 		return
 	}
 
