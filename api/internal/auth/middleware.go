@@ -23,7 +23,7 @@ func NewMiddleware(validator Validator) *Middleware {
 	return &Middleware{validator: validator}
 }
 
-func (m *Middleware) auth(c *gin.Context) {
+func (m *Middleware) Auth(c *gin.Context) {
 	token, err := extractToken(c)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

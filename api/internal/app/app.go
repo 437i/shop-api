@@ -77,7 +77,6 @@ var infraModule = fx.Options(
 			fx.As(new(database.Transactor)),
 		),
 		database.DBInit,
-		server.NewMiddleware,
 		server.NewRouter,
 		server.NewServer,
 	),
@@ -101,8 +100,9 @@ var authModule = fx.Options(
 		fx.Annotate(
 			auth.NewGRPCClient,
 			fx.As(new(auth.Service)),
-			fx.As(new(server.Validator)),
+			fx.As(new(auth.Validator)),
 		),
+		auth.NewMiddleware,
 	),
 )
 
@@ -111,8 +111,9 @@ var mockAuthModule = fx.Options(
 		fx.Annotate(
 			auth.NewMock,
 			fx.As(new(auth.Service)),
-			fx.As(new(server.Validator)),
+			fx.As(new(auth.Validator)),
 		),
+		auth.NewMiddleware,
 	),
 )
 

@@ -18,7 +18,7 @@ func NewRouter(
 	supplier *supplier.Handler,
 	image *image.Handler,
 	auth *auth.Handler,
-	middleware *Middleware,
+	middleware *auth.Middleware,
 ) *gin.Engine {
 	engine := gin.Default()
 
@@ -32,7 +32,7 @@ func NewRouter(
 	}
 
 	protected := engine.Group("/api/v1")
-	protected.Use(middleware.auth)
+	protected.Use(middleware.Auth)
 
 	clients := protected.Group("/clients")
 	{
