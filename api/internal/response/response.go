@@ -11,3 +11,9 @@ func Error(c *gin.Context, status int, message string) {
 		Message: message,
 	})
 }
+
+func Abort(c *gin.Context, status int, message string) {
+	c.AbortWithStatusJSON(status, ErrorResponse{
+		Message: message,
+	})
+}

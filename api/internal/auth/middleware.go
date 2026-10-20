@@ -1,12 +1,12 @@
 package auth
 
 import (
+	"be2/internal/response"
 	"context"
 	"errors"
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,28 +28,20 @@ func NewMiddleware(validator Validator) *Middleware {
 func (m *Middleware) Auth(c *gin.Context) {
 	token, err := extractToken(c)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		response.Abort(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
-	defer cancel()
-
-	valid, err := m.validator.ValidateToken(ctx, token)
+	valid, err := m.validator.ValidateToken(c.Request.Context(), token)
 	if err != nil {
 		log.Printf("validate grpc error: %v", err)
-		c.AbortWithStatusJSON(http.StatusServiceUnavailable, gin.H{
-			"error": "auth service unavailable",
-		})
+		code, msg := MapErrToHTTP(err)
+		response.Abort(c, code, msg)
 		return
 	}
 
 	if !valid {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "invalid or expired token",
-		})
+		response.Abort(c, http.StatusUnauthorized, "invalid or expired token")
 		return
 	}
 
