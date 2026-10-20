@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ctxTokenKey struct{}
+
 type Validator interface {
 	ValidateToken(ctx context.Context, token string) (bool, error)
 }
@@ -51,6 +53,8 @@ func (m *Middleware) Auth(c *gin.Context) {
 		return
 	}
 
+	c.Request = c.Request.WithContext(tokenToCtx(c.Request.Context(), token))
+
 	c.Next()
 }
 
@@ -61,4 +65,22 @@ func extractToken(c *gin.Context) (string, error) {
 	}
 
 	return parts[1], nil
+}
+
+func tokenToCtx(ctx context.Context, token string) context.Context {
+	return context.WithValue(ctx, ctxTokenKey{}, token)
+}
+
+func tokenFromCtx(ctx context.Context) (string, error) {
+	tokenVal := ctx.Value(ctxTokenKey{})
+	if tokenVal == nil {
+		return "", ErrTokenNotFoundInCtx
+	}
+
+	token, ok := tokenVal.(string)
+	if !ok {
+		return "", ErrInvalidToken
+	}
+
+	return token, nil
 }
