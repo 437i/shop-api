@@ -69,6 +69,18 @@ definitions:
         example: "+79991234567"
         type: string
     type: object
+  internal_auth.ChangeRequest:
+    properties:
+      current_password:
+        example: $OldExamplePass123!
+        type: string
+      new_password:
+        example: $NewExamplePass123!
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
   internal_auth.LoginRequest:
     properties:
       email:
@@ -88,18 +100,15 @@ definitions:
         type: string
       name:
         example: Иван
-        maxLength: 255
         type: string
       password:
         example: $ExamplePass123!
-        minLength: 8
         type: string
       phone:
         example: "+79991234567"
         type: string
       surname:
         example: Иванов
-        maxLength: 255
         type: string
     required:
     - email
@@ -343,11 +352,54 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "502":
           description: Bad Gateway
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Login user
+      tags:
+      - auth
+  /change:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Old + New passwords
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_auth.ChangeRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change user password
       tags:
       - auth
   /clients:
@@ -386,6 +438,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -416,6 +472,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -439,6 +499,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -478,6 +542,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -505,6 +573,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -537,6 +609,10 @@ paths:
             type: string
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -576,6 +652,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -600,6 +680,10 @@ paths:
             items:
               $ref: '#/definitions/internal_product.ListResponse'
             type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -630,6 +714,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -657,6 +745,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -691,6 +783,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -722,6 +818,10 @@ paths:
             type: string
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -765,6 +865,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -802,6 +906,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -843,8 +951,16 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "502":
           description: Bad Gateway
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "503":
+          description: Service Unavailable
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Register new user
@@ -872,6 +988,10 @@ paths:
           description: Bad Gateway
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
       summary: Reset user password
       tags:
       - auth
@@ -886,6 +1006,10 @@ paths:
             items:
               $ref: '#/definitions/internal_supplier.Response'
             type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -916,6 +1040,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -939,6 +1067,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -971,6 +1103,10 @@ paths:
             $ref: '#/definitions/internal_supplier.Response'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":
@@ -1008,6 +1144,10 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/be2_internal_response.ErrorResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/be2_internal_response.ErrorResponse'
         "404":

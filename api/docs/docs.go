@@ -51,8 +51,76 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "502": {
                         "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/change": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Change user password",
+                "parameters": [
+                    {
+                        "description": "Old + New passwords",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_auth.ChangeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -119,6 +187,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -167,6 +241,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -203,6 +283,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -265,6 +351,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -313,6 +405,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -374,6 +472,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -418,6 +522,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -455,6 +565,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/internal_product.ListResponse"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -501,6 +617,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -557,6 +679,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -597,6 +725,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -649,6 +783,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -716,6 +856,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -777,6 +923,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -834,8 +986,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "502": {
                         "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -878,6 +1042,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
                     }
                 }
             }
@@ -904,6 +1074,12 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/internal_supplier.Response"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -954,6 +1130,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1000,6 +1182,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -1040,6 +1228,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -1098,6 +1292,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/be2_internal_response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/be2_internal_response.ErrorResponse"
                         }
@@ -1217,6 +1417,23 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_auth.ChangeRequest": {
+            "type": "object",
+            "required": [
+                "current_password",
+                "new_password"
+            ],
+            "properties": {
+                "current_password": {
+                    "type": "string",
+                    "example": "$OldExamplePass123!"
+                },
+                "new_password": {
+                    "type": "string",
+                    "example": "$NewExamplePass123!"
+                }
+            }
+        },
         "internal_auth.LoginRequest": {
             "type": "object",
             "required": [
@@ -1250,12 +1467,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 255,
                     "example": "Иван"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 8,
                     "example": "$ExamplePass123!"
                 },
                 "phone": {
@@ -1264,7 +1479,6 @@ const docTemplate = `{
                 },
                 "surname": {
                     "type": "string",
-                    "maxLength": 255,
                     "example": "Иванов"
                 }
             }
