@@ -4,7 +4,7 @@ package auth.v1;
 
 option go_package = "be2/gen/auth;authProto";
 
-option java_package = "auth.grpc";
+option java_package = "auth.proto_to_grpc";
 option java_multiple_files = true;
 option java_outer_classname = "AuthProto";
 
