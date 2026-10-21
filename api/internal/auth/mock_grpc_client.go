@@ -30,3 +30,11 @@ func (m *Mock) Login(_ context.Context, _ LoginRequest) (Response, error) {
 func (m *Mock) ResetPassword(_ context.Context, _ ResetRequest) error {
 	return nil
 }
+
+func (m *Mock) ChangePassword(_ context.Context, _ ChangeRequest, token string) error {
+	if token != m.mockToken {
+		return ErrWrongPassword
+	}
+
+	return nil
+}

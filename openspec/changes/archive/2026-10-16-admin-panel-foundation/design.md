@@ -10,6 +10,9 @@ Frontend находится в начальной стадии: Vite + React н�
 
 Backend API работает в Docker на 127.0.0.1:8080. Vite dev server проксирует `/api/v1` на Go API. Java auth service отсутствует в docker-compose.yml, но Go API в текущей конфигурации запускается с dev-mock auth-модулем (`cmd/api/main.go` → `app.MockModule`): `POST /api/v1/auth` принимает любые валидные по форме credentials и возвращает фиксированный mock-токен, который принимает middleware защищённых endpoints. Это удобно для локальной проверки интеграции, но не является реальной аутентификацией; реальный auth flow появится после подключения Java auth service (`app.Module`).
 
+
+> **Уточнение (2026-10-21).** Описанное выше — состояние на момент архивации: стенд использовал dev-mock auth, реальная аутентификация была недоступна. С тех пор `docker-compose` поднимает Java auth service (`auth`, `auth-postgres`), `cmd/api` запускает `app.Module` с реальным gRPC-клиентом, а dev-mock приведён в соответствие и остаётся опциональной альтернативой; поэтому приведённые выше утверждения о недоступности реального auth service, об актуальности `frontend/README.md` и о работе раздела только при dev-mock auth не описывают текущий стенд — см. `frontend/README.md`, раздел «Local authentication».
+
 ## Goals / Non-Goals
 
 **Goals:**

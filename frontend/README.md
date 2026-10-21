@@ -24,11 +24,15 @@ npm run test:e2e
 
 E2E specs live in `e2e/` and intercept the API with `page.route()`; they do not require the Go API or any other backend to run. Vitest only collects specs from `src/` (see `vite.config.ts`), so Playwright specs are not picked up by `npm run test`.
 
-## Local authentication (dev-mock)
+## Local authentication
 
-Real authentication is unavailable until the Java auth service is connected. The browser talks only to the Go HTTP API, which delegates credentials to that Java service over gRPC.
+The default local stack uses the real Java authentication service. `docker-compose` starts `auth` (Java, gRPC on the internal port `50051`, reached by the Go API through `AUTH_GRPC_HOST` and `AUTH_GRPC_PORT`) and `auth-postgres`; `api/cmd/api` runs `app.Module`, so `POST /api/v1/register` and `POST /api/v1/auth` perform a real registration and login. The browser still talks only to the Go HTTP API and never to the Java service or its database.
 
-In the local docker-compose stack the Go API starts with a dev-mock auth module (`api/cmd/api` → `app.MockModule`): `POST /api/v1/auth` accepts any well-formed credentials and returns a fixed mock token, and the auth middleware accepts that same token for protected endpoints. Signing in locally therefore verifies the frontend integration flow, not real authentication. The 502 "Authentication service unavailable" response belongs to the real auth service path and cannot be triggered by the mock module.
+### Development mock (opt-in)
+
+`app.MockModule` is kept as an explicit alternative for local development without the Java service: `POST /api/v1/auth` accepts any well-formed credentials and returns a fixed mock token, and the auth middleware accepts that same token for protected endpoints. Signing in this way verifies the frontend integration flow, not real authentication, so the mock must never be used as a substitute for verifying the real authentication flow.
+
+The stack does not enable the mock. To work without the Java service, switch the composition in `api/cmd/api` to `app.MockModule` locally — an explicit local option, not a change of the default composition, which stays `app.Module`. The mock module serves every auth endpoint, including `POST /api/v1/change`; the `502 "Authentication service unavailable"` response belongs to the real auth service path and cannot be triggered by the mock module.
 
 ## Template notes
 
