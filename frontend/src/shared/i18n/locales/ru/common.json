@@ -8,6 +8,63 @@
     "submit": "Войти",
     "submitting": "Выполняется вход..."
   },
+  "auth": {
+    "register": {
+      "title": "Регистрация",
+      "nameLabel": "Имя",
+      "surnameLabel": "Фамилия",
+      "emailLabel": "Email",
+      "phoneLabel": "Телефон",
+      "passwordLabel": "Пароль",
+      "emailPlaceholder": "name@example.com",
+      "phonePlaceholder": "+7 999 123-45-67",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Зарегистрироваться",
+      "submitting": "Регистрация..."
+    },
+    "reset": {
+      "title": "Сброс пароля",
+      "description": "Укажите email вашей учётной записи.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "submit": "Сбросить пароль",
+      "submitting": "Сброс пароля...",
+      "success": "Пароль сброшен. Новый пароль записан в лог сервиса авторизации.",
+      "successWarning": "Текущий пароль больше не действует. Войдите с новым паролем из лога."
+    },
+    "changePassword": {
+      "title": "Смена пароля",
+      "currentPasswordLabel": "Текущий пароль",
+      "newPasswordLabel": "Новый пароль",
+      "submit": "Сменить пароль",
+      "submitting": "Смена пароля...",
+      "cancel": "Отмена",
+      "success": "Пароль изменён."
+    },
+    "links": {
+      "toRegister": "Регистрация",
+      "toReset": "Забыли пароль?",
+      "toLogin": "Вернуться ко входу"
+    },
+    "validation": {
+      "nameRequired": "Укажите имя",
+      "nameInvalid": "Имя должно состоять только из букв",
+      "nameTooLong": "Имя должно быть короче 30 символов",
+      "surnameRequired": "Укажите фамилию",
+      "surnameInvalid": "Фамилия должна состоять только из букв",
+      "surnameTooLong": "Фамилия должна быть короче 30 символов",
+      "emailRequired": "Укажите email",
+      "emailInvalid": "Укажите корректный email в домене .ru или .com",
+      "emailTooLong": "Email должен быть короче 50 символов",
+      "phoneRequired": "Укажите телефон",
+      "phoneInvalid": "Укажите телефон в формате +7 или 8, например +7-999-123-45-67",
+      "passwordRequired": "Укажите пароль",
+      "passwordShort": "Пароль должен быть длиннее 5 символов",
+      "passwordTooLong": "Пароль должен быть не длиннее 72 байт",
+      "currentPasswordRequired": "Укажите текущий пароль",
+      "newPasswordRequired": "Укажите новый пароль"
+    }
+  },
   "validation": {
     "emailRequired": "Укажите email",
     "invalidEmail": "Некорректный формат email",
@@ -22,6 +79,8 @@
     "productNotFound": "Товар не найден",
     "insufficientStock": "Недостаточно товара на складе",
     "invalidCredentials": "Неверные учётные данные",
+    "userAlreadyExists": "Пользователь с таким email уже существует",
+    "invalidCurrentPassword": "Некорректный текущий пароль",
     "authenticationUnavailable": "Сервис аутентификации недоступен",
     "missingToken": "Ошибка аутентификации: токен не получен"
   },

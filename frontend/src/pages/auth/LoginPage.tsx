@@ -2,9 +2,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { Navigate, useNavigate } from "react-router"
+import { Link, Navigate, useNavigate } from "react-router"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -18,18 +18,12 @@ import {
 import type { components } from "@/shared/api/generated/schema"
 
 import { type LoginFormValues, loginSchema } from "./loginSchema"
+import { MissingTokenError } from "./useAuthMutations"
 
 type LoginRequest = components["schemas"]["internal_auth.LoginRequest"]
 type LoginResponse = components["schemas"]["internal_auth.Response"]
 
 type TranslateFn = (key: string) => string
-
-class MissingTokenError extends Error {
-  constructor() {
-    super("Authentication failed: no token received")
-    this.name = "MissingTokenError"
-  }
-}
 
 function resolveLoginError(error: unknown, translate: TranslateFn): string {
   if (error instanceof MissingTokenError) {
@@ -164,6 +158,20 @@ export function LoginPage() {
                 ? t("login.submitting")
                 : t("login.submit")}
             </Button>
+            <div className="flex items-center justify-between gap-2">
+              <Link
+                className={buttonVariants({ variant: "link", size: "xs" })}
+                to="/auth/register"
+              >
+                {t("auth.links.toRegister")}
+              </Link>
+              <Link
+                className={buttonVariants({ variant: "link", size: "xs" })}
+                to="/auth/reset"
+              >
+                {t("auth.links.toReset")}
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

@@ -221,6 +221,46 @@ export async function mockApi(
     }),
   )
 
+  // The auth endpoints below are mocked: the browser never reaches the live
+  // Java authentication service, so these scenarios verify the frontend flow
+  // only and say nothing about real credentials.
+  await page.route(/\/api\/v1\/register$/, (route) => {
+    if (route.request().method() !== "POST") {
+      return route.fallback()
+    }
+
+    return route.fulfill({
+      status: 201,
+      contentType: "application/json",
+      body: JSON.stringify({ token: MOCK_TOKEN }),
+    })
+  })
+
+  await page.route(/\/api\/v1\/reset$/, (route) => {
+    if (route.request().method() !== "POST") {
+      return route.fallback()
+    }
+
+    return route.fulfill({ status: 204 })
+  })
+
+  await page.route(/\/api\/v1\/change$/, (route) => {
+    if (route.request().method() !== "POST") {
+      return route.fallback()
+    }
+
+    const authorization = route.request().headers().authorization ?? ""
+
+    if (authorization !== `Bearer ${MOCK_TOKEN}`) {
+      return fulfillError(route, {
+        status: 401,
+        message: "invalid or expired token",
+      })
+    }
+
+    return route.fulfill({ status: 204 })
+  })
+
   await page.route(/\/api\/v1\/clients$/, (route) => {
     const request = route.request()
 

@@ -27,13 +27,66 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "502":
           description: Bad Gateway
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "503":
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
       summary: Login user
+      tags:
+        - auth
+  /change:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/internal_auth.ChangeRequest"
+        description: Old + New passwords
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "502":
+          description: Bad Gateway
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "503":
+          description: Service Unavailable
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+      security:
+        - BearerAuth: []
+      summary: Change user password
       tags:
         - auth
   /clients:
@@ -78,6 +131,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
@@ -110,6 +169,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
@@ -136,6 +201,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             "*/*":
               schema:
@@ -183,6 +254,12 @@ paths:
             "*/*":
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -215,6 +292,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             "*/*":
               schema:
@@ -258,6 +341,12 @@ paths:
             application/octet-stream:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -295,6 +384,12 @@ paths:
             "*/*":
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -323,6 +418,12 @@ paths:
                 items:
                   $ref: "#/components/schemas/internal_product.ListResponse"
                 type: array
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
@@ -351,6 +452,12 @@ paths:
                 $ref: "#/components/schemas/internal_product.CreateResponse"
         "400":
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -387,6 +494,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             "*/*":
               schema:
@@ -430,6 +543,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -466,6 +585,12 @@ paths:
                 type: string
         "400":
           description: Bad Request
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/octet-stream:
               schema:
@@ -511,6 +636,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -550,6 +681,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -599,8 +736,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "502":
           description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "503":
+          description: Service Unavailable
           content:
             application/json:
               schema:
@@ -632,6 +781,12 @@ paths:
             "*/*":
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "503":
+          description: Service Unavailable
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
       summary: Reset user password
       tags:
         - auth
@@ -646,6 +801,12 @@ paths:
                 items:
                   $ref: "#/components/schemas/internal_supplier.Response"
                 type: array
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
@@ -678,6 +839,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "500":
           description: Internal Server Error
           content:
@@ -704,6 +871,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             "*/*":
               schema:
@@ -747,6 +920,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
         "404":
           description: Not Found
           content:
@@ -786,6 +965,12 @@ paths:
           description: No Content
         "400":
           description: Bad Request
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/be2_internal_response.ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             "*/*":
               schema:
@@ -893,6 +1078,18 @@ components:
           example: "+79991234567"
           type: string
       type: object
+    internal_auth.ChangeRequest:
+      properties:
+        current_password:
+          example: $OldExamplePass123!
+          type: string
+        new_password:
+          example: $NewExamplePass123!
+          type: string
+      required:
+        - current_password
+        - new_password
+      type: object
     internal_auth.LoginRequest:
       properties:
         email:
@@ -912,18 +1109,15 @@ components:
           type: string
         name:
           example: Иван
-          maxLength: 255
           type: string
         password:
           example: $ExamplePass123!
-          minLength: 8
           type: string
         phone:
           example: "+79991234567"
           type: string
         surname:
           example: Иванов
-          maxLength: 255
           type: string
       required:
         - email

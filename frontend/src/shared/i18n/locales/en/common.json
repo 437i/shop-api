@@ -8,6 +8,63 @@
     "submit": "Sign In",
     "submitting": "Signing in..."
   },
+  "auth": {
+    "register": {
+      "title": "Sign Up",
+      "nameLabel": "Name",
+      "surnameLabel": "Surname",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone",
+      "passwordLabel": "Password",
+      "emailPlaceholder": "name@example.com",
+      "phonePlaceholder": "+7 999 123-45-67",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign Up",
+      "submitting": "Signing up..."
+    },
+    "reset": {
+      "title": "Reset password",
+      "description": "Enter the email of your account.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "success": "The password has been reset. The new password is written to the authentication service log.",
+      "successWarning": "The current password no longer works. Sign in with the new password from the log."
+    },
+    "changePassword": {
+      "title": "Change password",
+      "currentPasswordLabel": "Current password",
+      "newPasswordLabel": "New password",
+      "submit": "Change password",
+      "submitting": "Changing...",
+      "cancel": "Cancel",
+      "success": "The password has been changed."
+    },
+    "links": {
+      "toRegister": "Sign up",
+      "toReset": "Forgot your password?",
+      "toLogin": "Back to sign in"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameInvalid": "Name must contain letters only",
+      "nameTooLong": "Name must be shorter than 30 characters",
+      "surnameRequired": "Surname is required",
+      "surnameInvalid": "Surname must contain letters only",
+      "surnameTooLong": "Surname must be shorter than 30 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email in the .ru or .com domain",
+      "emailTooLong": "Email must be shorter than 50 characters",
+      "phoneRequired": "Phone is required",
+      "phoneInvalid": "Enter a phone number in the +7 or 8 format, for example +7-999-123-45-67",
+      "passwordRequired": "Password is required",
+      "passwordShort": "Password must be longer than 5 characters",
+      "passwordTooLong": "Password must be at most 72 bytes",
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordRequired": "New password is required"
+    }
+  },
   "validation": {
     "emailRequired": "Email is required",
     "invalidEmail": "Invalid email format",
@@ -22,6 +79,8 @@
     "productNotFound": "Product not found",
     "insufficientStock": "Insufficient stock",
     "invalidCredentials": "Invalid credentials",
+    "userAlreadyExists": "User already exists",
+    "invalidCurrentPassword": "Invalid current password",
     "authenticationUnavailable": "Authentication service unavailable",
     "missingToken": "Authentication failed: no token received"
   },
