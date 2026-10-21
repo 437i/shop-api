@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
 
+import { Toaster } from "@/components/ui/sonner"
 import { setUnauthorizedHandler } from "@/shared/api/client"
 import i18n from "@/shared/i18n/config"
 
@@ -24,7 +25,10 @@ setUnauthorizedHandler(() => {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+      <I18nextProvider i18n={i18n}>
+        {children}
+        <Toaster />
+      </I18nextProvider>
     </QueryClientProvider>
   )
 }

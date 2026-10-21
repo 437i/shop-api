@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ import { EditSupplierAddressDialog } from "@/pages/suppliers/EditSupplierAddress
 import { SUPPLIERS_QUERY_KEY } from "@/pages/suppliers/useSupplierMutations"
 import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { RetryableErrorAlert } from "@/shared/feedback/RetryableErrorAlert"
 
 type SupplierResponse = components["schemas"]["internal_supplier.Response"]
 
@@ -178,14 +178,29 @@ export function SuppliersListPage() {
     useState<SupplierResponse | null>(null)
   const [supplierToDelete, setSupplierToDelete] =
     useState<SupplierResponse | null>(null)
+  const [listError, setListError] = useState<unknown>(null)
 
   const suppliersQuery = useQuery({
     queryKey: SUPPLIERS_QUERY_KEY,
-    queryFn: () => apiClient.get<SupplierResponse[]>("/suppliers"),
+    queryFn: async () => {
+      try {
+        const suppliers = await apiClient.get<SupplierResponse[]>("/suppliers")
+        setListError(null)
+
+        return suppliers
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          setListError(error)
+        }
+
+        throw error
+      }
+    },
   })
 
-  const errorMessage = suppliersQuery.error
-    ? resolveSuppliersError(suppliersQuery.error, t)
+  const currentListError = suppliersQuery.error ?? listError
+  const errorMessage = currentListError
+    ? resolveSuppliersError(currentListError, t)
     : null
 
   return (
@@ -196,13 +211,15 @@ export function SuppliersListPage() {
           {t("suppliers.actions.addSupplier")}
         </Button>
       </div>
-      {suppliersQuery.isLoading ? (
+      {suppliersQuery.isLoading && !errorMessage ? (
         <SuppliersTableSkeleton label={t("suppliers.loading")} />
       ) : null}
-      {suppliersQuery.isError && errorMessage ? (
-        <Alert variant="destructive">
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
+      {errorMessage ? (
+        <RetryableErrorAlert
+          message={errorMessage}
+          onRetry={() => void suppliersQuery.refetch()}
+          isRetrying={suppliersQuery.isFetching}
+        />
       ) : null}
       {suppliersQuery.isSuccess && suppliersQuery.data.length === 0 ? (
         <SuppliersEmptyState />

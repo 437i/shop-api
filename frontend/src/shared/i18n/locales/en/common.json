@@ -25,6 +25,19 @@
     "authenticationUnavailable": "Authentication service unavailable",
     "missingToken": "Authentication failed: no token received"
   },
+  "feedback": {
+    "retry": "Retry",
+    "retrying": "Retrying",
+    "clientCreated": "Client created",
+    "clientDeleted": "Client deleted",
+    "clientAddressUpdated": "Client address updated",
+    "supplierCreated": "Supplier created",
+    "supplierDeleted": "Supplier deleted",
+    "supplierAddressUpdated": "Supplier address updated",
+    "productCreated": "Product created",
+    "productDeleted": "Product deleted",
+    "stockDecreased": "Stock decreased"
+  },
   "navigation": {
     "clients": "Clients",
     "products": "Products",

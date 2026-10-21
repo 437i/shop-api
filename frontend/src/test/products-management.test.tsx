@@ -1,12 +1,27 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, render, screen, waitFor, within } from "@testing-library/react"
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { UserEvent } from "@testing-library/user-event"
+import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
 
 import { ProductsListPage } from "@/pages/products/ProductsListPage"
+import type { ProductFormValues } from "@/pages/products/productFormSchema"
+import {
+  useCreateProduct,
+  useDecreaseStock,
+  useDeleteProduct,
+} from "@/pages/products/useProductMutations"
 import {
   AUTH_TOKEN_STORAGE_KEY,
   setUnauthorizedHandler,
@@ -1273,5 +1288,170 @@ describe("ProductsListPage stock decrease", () => {
     expect(
       within(dialog).getByRole("button", { name: "Отмена" }),
     ).toBeInTheDocument()
+  })
+})
+
+describe("ProductsListPage product notifications", () => {
+  let successSpy: ReturnType<typeof vi.spyOn>
+
+  const NOTIFICATION_FORM_VALUES: ProductFormValues = {
+    name: FORM_VALUES.name,
+    category: FORM_VALUES.category,
+    price: FORM_VALUES.price,
+    stock: FORM_VALUES.stock,
+    supplierId: SELECTED_SUPPLIER.id,
+  }
+
+  beforeEach(async () => {
+    localStorage.clear()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+    successSpy = vi.spyOn(toast, "success")
+
+    await act(async () => {
+      await i18n.changeLanguage("en")
+    })
+  })
+
+  afterEach(() => {
+    setUnauthorizedHandler(null)
+    toast.dismiss()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  function createWrapper() {
+    const queryClient = createTestQueryClient()
+
+    return function Wrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      )
+    }
+  }
+
+  it("notifies about a created product", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, CREATED_PRODUCT))
+    const { result } = renderHook(() => useCreateProduct(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Product created")
+  })
+
+  it("notifies about a deleted product", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useDeleteProduct(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync("1")
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Product deleted")
+  })
+
+  it("notifies about a decreased stock", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useDecreaseStock(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync({ productId: "1", amount: "2" })
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Stock decreased")
+  })
+
+  it("shows a separate notification for every successful mutation", async () => {
+    fetchMock.mockImplementation(() =>
+      Promise.resolve(jsonResponse(201, CREATED_PRODUCT)),
+    )
+    const { result } = renderHook(() => useCreateProduct(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([400, 404, 409, 500, 503])(
+    "does not notify when the create request fails with %i",
+    async (status) => {
+      fetchMock.mockResolvedValue(jsonResponse(status, { message: "failed" }))
+      const { result } = renderHook(() => useCreateProduct(), {
+        wrapper: createWrapper(),
+      })
+
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+        ).rejects.toThrow()
+      })
+
+      expect(successSpy).not.toHaveBeenCalled()
+    },
+  )
+
+  it("does not notify when the stock decrease fails with 409", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(409, { message: "not enough" }))
+    const { result } = renderHook(() => useDecreaseStock(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({ productId: "1", amount: "2" }),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
+  })
+
+  it("does not notify when the request fails without a response", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
+    const { result } = renderHook(() => useCreateProduct(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
+  })
+
+  it("does not notify when the session ends with 401", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(401, { message: "expired" }))
+    const { result } = renderHook(() => useCreateProduct(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
   })
 })

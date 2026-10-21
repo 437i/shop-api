@@ -43,13 +43,15 @@ const PRODUCTS: ProductFixture[] = [
 
 let fetchMock: Mock<typeof fetch>
 
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  })
+}
+
 function stubJsonResponse(status: number, body: unknown): void {
-  fetchMock.mockResolvedValue(
-    new Response(JSON.stringify(body), {
-      status,
-      headers: { "Content-Type": "application/json" },
-    }),
-  )
+  fetchMock.mockResolvedValue(jsonResponse(status, body))
 }
 
 function createTestQueryClient(): QueryClient {
@@ -261,6 +263,97 @@ describe("ProductsListPage", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
   })
 
+  it("offers a retry action when the list request fails", async () => {
+    stubJsonResponse(500, { message: "server error" })
+    renderPage()
+
+    expect(
+      await screen.findByRole("button", { name: "Retry" }),
+    ).toBeInTheDocument()
+  })
+
+  it("repeats the list request when the retry action is activated", async () => {
+    let getCalls = 0
+    fetchMock.mockImplementation(() => {
+      getCalls += 1
+
+      return Promise.resolve(
+        getCalls === 1
+          ? jsonResponse(500, { message: "server error" })
+          : jsonResponse(200, PRODUCTS),
+      )
+    })
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(await screen.findByRole("button", { name: "Retry" }))
+
+    expect(await screen.findByRole("table")).toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Retry" }),
+    ).not.toBeInTheDocument()
+    expect(getCalls).toBe(2)
+  })
+
+  it("keeps the retry action available after an unsuccessful retry", async () => {
+    fetchMock.mockImplementation(() =>
+      Promise.resolve(jsonResponse(500, { message: "server error" })),
+    )
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(await screen.findByRole("button", { name: "Retry" }))
+
+    expect(await screen.findByRole("button", { name: "Retry" })).toBeEnabled()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it("keeps the error message and the blocked retry action while the repeated request runs", async () => {
+    let getCalls = 0
+    let resolveRetry: ((response: Response) => void) | undefined
+
+    fetchMock.mockImplementation((_input, init) => {
+      const method = init?.method ?? "GET"
+
+      if (method !== "GET") {
+        return Promise.reject(new Error(`Unexpected ${method} request`))
+      }
+
+      getCalls += 1
+
+      if (getCalls === 1) {
+        return Promise.resolve(jsonResponse(500, { message: "server error" }))
+      }
+
+      return new Promise<Response>((resolve) => {
+        resolveRetry = resolve
+      })
+    })
+
+    const user = userEvent.setup()
+    renderPage()
+
+    await user.click(
+      await screen.findByRole("button", { name: /^Retry$/ }),
+    )
+
+    const retrying = await screen.findByRole("button", {
+      name: /^Retrying$/,
+    })
+    expect(retrying).toBeDisabled()
+    expect(screen.getByRole("alert")).toBeVisible()
+    expect(document.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(0)
+
+    await act(async () => {
+      resolveRetry?.(jsonResponse(200, PRODUCTS))
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    })
+    expect(screen.getByRole("table")).toBeInTheDocument()
+  })
+
   it("clears the session and triggers the redirect handler on 401", async () => {
     localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
     const queryClient = createTestQueryClient()
@@ -277,6 +370,9 @@ describe("ProductsListPage", () => {
     expect(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)).toBeNull()
     expect(queryClient.getQueryData(["cached-products"])).toBeUndefined()
     expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Retry" }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByRole("table")).not.toBeInTheDocument()
   })
 

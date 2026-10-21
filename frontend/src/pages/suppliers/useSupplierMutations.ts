@@ -6,6 +6,7 @@ import type {
 } from "@/pages/suppliers/supplierFormSchema"
 import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { notifySuccess } from "@/shared/feedback/notifications"
 
 type CreateSupplierRequest =
   components["schemas"]["internal_supplier.CreateRequest"]
@@ -59,6 +60,7 @@ export function useCreateSupplier() {
         },
       }),
     onSuccess: () => {
+      notifySuccess("feedback.supplierCreated")
       void queryClient.invalidateQueries({ queryKey: SUPPLIERS_QUERY_KEY })
     },
   })
@@ -85,6 +87,7 @@ export function useUpdateSupplierAddress() {
         },
       ),
     onSuccess: () => {
+      notifySuccess("feedback.supplierAddressUpdated")
       void queryClient.invalidateQueries({ queryKey: SUPPLIERS_QUERY_KEY })
     },
   })
@@ -97,6 +100,7 @@ export function useDeleteSupplier() {
     mutationFn: (supplierId: string) =>
       apiClient.delete<void>(`/suppliers/${supplierId}`),
     onSuccess: () => {
+      notifySuccess("feedback.supplierDeleted")
       void queryClient.invalidateQueries({ queryKey: SUPPLIERS_QUERY_KEY })
     },
   })

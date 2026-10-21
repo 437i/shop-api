@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -31,6 +30,7 @@ import {
   apiClient,
 } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { RetryableErrorAlert } from "@/shared/feedback/RetryableErrorAlert"
 
 type ClientResponse = components["schemas"]["internal_client.Response"]
 
@@ -200,14 +200,29 @@ export function ClientsListPage() {
     useState<ClientResponse | null>(null)
   const [clientToDelete, setClientToDelete] =
     useState<ClientResponse | null>(null)
+  const [listError, setListError] = useState<unknown>(null)
 
   const clientsQuery = useQuery({
     queryKey: CLIENTS_QUERY_KEY,
-    queryFn: () => apiClient.get<ClientResponse[]>("/clients"),
+    queryFn: async () => {
+      try {
+        const clients = await apiClient.get<ClientResponse[]>("/clients")
+        setListError(null)
+
+        return clients
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          setListError(error)
+        }
+
+        throw error
+      }
+    },
   })
 
-  const errorMessage = clientsQuery.error
-    ? resolveClientsError(clientsQuery.error, t)
+  const currentListError = clientsQuery.error ?? listError
+  const errorMessage = currentListError
+    ? resolveClientsError(currentListError, t)
     : null
 
   return (
@@ -218,13 +233,15 @@ export function ClientsListPage() {
           {t("clients.actions.addClient")}
         </Button>
       </div>
-      {clientsQuery.isLoading ? (
+      {clientsQuery.isLoading && !errorMessage ? (
         <ClientsTableSkeleton label={t("clients.loading")} />
       ) : null}
-      {clientsQuery.isError && errorMessage ? (
-        <Alert variant="destructive">
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
+      {errorMessage ? (
+        <RetryableErrorAlert
+          message={errorMessage}
+          onRetry={() => void clientsQuery.refetch()}
+          isRetrying={clientsQuery.isFetching}
+        />
       ) : null}
       {clientsQuery.isSuccess && clientsQuery.data.length === 0 ? (
         <ClientsEmptyState />

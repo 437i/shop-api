@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ import { DeleteProductDialog } from "@/pages/products/DeleteProductDialog"
 import { PRODUCTS_QUERY_KEY } from "@/pages/products/useProductMutations"
 import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { RetryableErrorAlert } from "@/shared/feedback/RetryableErrorAlert"
 
 type ProductListResponse = components["schemas"]["internal_product.ListResponse"]
 
@@ -176,14 +176,29 @@ export function ProductsListPage() {
     useState<ProductListResponse | null>(null)
   const [productToDelete, setProductToDelete] =
     useState<ProductListResponse | null>(null)
+  const [listError, setListError] = useState<unknown>(null)
 
   const productsQuery = useQuery({
     queryKey: PRODUCTS_QUERY_KEY,
-    queryFn: () => apiClient.get<ProductListResponse[]>("/products"),
+    queryFn: async () => {
+      try {
+        const products = await apiClient.get<ProductListResponse[]>("/products")
+        setListError(null)
+
+        return products
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) {
+          setListError(error)
+        }
+
+        throw error
+      }
+    },
   })
 
-  const errorMessage = productsQuery.error
-    ? resolveProductsError(productsQuery.error, t)
+  const currentListError = productsQuery.error ?? listError
+  const errorMessage = currentListError
+    ? resolveProductsError(currentListError, t)
     : null
 
   return (
@@ -194,13 +209,15 @@ export function ProductsListPage() {
           {t("products.actions.addProduct")}
         </Button>
       </div>
-      {productsQuery.isLoading ? (
+      {productsQuery.isLoading && !errorMessage ? (
         <ProductsTableSkeleton label={t("products.loading")} />
       ) : null}
-      {productsQuery.isError && errorMessage ? (
-        <Alert variant="destructive">
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
+      {errorMessage ? (
+        <RetryableErrorAlert
+          message={errorMessage}
+          onRetry={() => void productsQuery.refetch()}
+          isRetrying={productsQuery.isFetching}
+        />
       ) : null}
       {productsQuery.isSuccess && productsQuery.data.length === 0 ? (
         <ProductsEmptyState />

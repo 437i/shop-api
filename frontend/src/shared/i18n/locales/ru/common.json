@@ -25,6 +25,19 @@
     "authenticationUnavailable": "Сервис аутентификации недоступен",
     "missingToken": "Ошибка аутентификации: токен не получен"
   },
+  "feedback": {
+    "retry": "Повторить",
+    "retrying": "Повторная загрузка",
+    "clientCreated": "Клиент создан",
+    "clientDeleted": "Клиент удалён",
+    "clientAddressUpdated": "Адрес клиента обновлён",
+    "supplierCreated": "Поставщик создан",
+    "supplierDeleted": "Поставщик удалён",
+    "supplierAddressUpdated": "Адрес поставщика обновлён",
+    "productCreated": "Товар создан",
+    "productDeleted": "Товар удалён",
+    "stockDecreased": "Остаток уменьшен"
+  },
   "navigation": {
     "clients": "Клиенты",
     "products": "Товары",

@@ -123,6 +123,17 @@ export interface MockApiOptions {
   createProductError?: MockApiError
   deleteProductError?: MockApiError
   decreaseStockError?: MockApiError
+  /**
+   * Fails only the first GET request of every list endpoint with the given
+   * error. The following GET requests of the same list succeed, which allows
+   * to exercise the retry action of a failing list.
+   */
+  listErrorOnce?: MockApiError
+  /**
+   * Delays every list response by the given amount of milliseconds, which
+   * allows to observe the state of a running list request.
+   */
+  listDelayMs?: number
 }
 
 export interface MockApiHandle {
@@ -130,6 +141,9 @@ export interface MockApiHandle {
   deleteSupplierRequests: string[]
   deleteProductRequests: string[]
   decreaseStockRequests: { id: string; amount: number }[]
+  clientsListRequests: number
+  productsListRequests: number
+  suppliersListRequests: number
 }
 
 function clientIdFromUrl(url: string): string {
@@ -152,11 +166,35 @@ function productIdFromUrl(url: string): string {
   return match?.[1] ? decodeURIComponent(match[1]) : ""
 }
 
-async function fulfillError(route: Route, error: MockApiError): Promise<void> {
+async function delay(delayMs: number): Promise<void> {
+  if (delayMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, delayMs))
+  }
+}
+
+async function fulfillError(
+  route: Route,
+  error: MockApiError,
+  delayMs = 0,
+): Promise<void> {
+  await delay(delayMs)
   await route.fulfill({
     status: error.status,
     contentType: "application/json",
     body: JSON.stringify(error.message ? { message: error.message } : {}),
+  })
+}
+
+async function fulfillList(
+  route: Route,
+  body: unknown,
+  delayMs = 0,
+): Promise<void> {
+  await delay(delayMs)
+  await route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify(body),
   })
 }
 
@@ -171,6 +209,9 @@ export async function mockApi(
   const deleteSupplierRequests: string[] = []
   const deleteProductRequests: string[] = []
   const decreaseStockRequests: { id: string; amount: number }[] = []
+  let clientsListRequests = 0
+  let productsListRequests = 0
+  let suppliersListRequests = 0
 
   await page.route(/\/api\/v1\/auth$/, (route) =>
     route.fulfill({
@@ -184,11 +225,13 @@ export async function mockApi(
     const request = route.request()
 
     if (request.method() === "GET") {
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(clients),
-      })
+      clientsListRequests += 1
+
+      if (options.listErrorOnce && clientsListRequests === 1) {
+        return fulfillError(route, options.listErrorOnce, options.listDelayMs)
+      }
+
+      return fulfillList(route, clients, options.listDelayMs)
     }
 
     if (request.method() === "POST") {
@@ -274,11 +317,13 @@ export async function mockApi(
     const request = route.request()
 
     if (request.method() === "GET") {
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(suppliers),
-      })
+      suppliersListRequests += 1
+
+      if (options.listErrorOnce && suppliersListRequests === 1) {
+        return fulfillError(route, options.listErrorOnce, options.listDelayMs)
+      }
+
+      return fulfillList(route, suppliers, options.listDelayMs)
     }
 
     if (request.method() === "POST") {
@@ -359,17 +404,21 @@ export async function mockApi(
     const request = route.request()
 
     if (request.method() === "GET") {
+      productsListRequests += 1
+
       if (options.productsListError) {
         return fulfillError(route, options.productsListError)
       }
 
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(
-          products.filter((product) => (product.available_stock ?? 0) > 0),
-        ),
-      })
+      if (options.listErrorOnce && productsListRequests === 1) {
+        return fulfillError(route, options.listErrorOnce, options.listDelayMs)
+      }
+
+      return fulfillList(
+        route,
+        products.filter((product) => (product.available_stock ?? 0) > 0),
+        options.listDelayMs,
+      )
     }
 
     if (request.method() === "POST") {
@@ -464,6 +513,15 @@ export async function mockApi(
     deleteSupplierRequests,
     deleteProductRequests,
     decreaseStockRequests,
+    get clientsListRequests() {
+      return clientsListRequests
+    },
+    get productsListRequests() {
+      return productsListRequests
+    },
+    get suppliersListRequests() {
+      return suppliersListRequests
+    },
   }
 }
 

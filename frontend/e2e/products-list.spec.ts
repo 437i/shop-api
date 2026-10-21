@@ -87,7 +87,7 @@ test("should show an alert and no table when the products request fails", async 
   await page.getByRole("link", { name: "Products", exact: true }).click()
   await expect(page).toHaveURL(/\/products$/)
 
-  await expect(page.getByRole("alert")).toHaveText("database is down")
+  await expect(page.getByRole("alert")).toContainText("database is down")
   await expect(page.getByRole("table")).toBeHidden()
 })
 

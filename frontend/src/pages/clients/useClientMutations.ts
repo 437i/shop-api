@@ -6,6 +6,7 @@ import type {
 } from "@/pages/clients/clientFormSchema"
 import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { notifySuccess } from "@/shared/feedback/notifications"
 
 type CreateClientRequest = components["schemas"]["internal_client.CreateRequest"]
 type UpdateAddressRequest =
@@ -60,6 +61,7 @@ export function useCreateClient() {
         },
       }),
     onSuccess: () => {
+      notifySuccess("feedback.clientCreated")
       void queryClient.invalidateQueries({ queryKey: CLIENTS_QUERY_KEY })
     },
   })
@@ -72,6 +74,7 @@ export function useDeleteClient() {
     mutationFn: (clientId: string) =>
       apiClient.delete<void>(`/clients/${clientId}`),
     onSuccess: () => {
+      notifySuccess("feedback.clientDeleted")
       void queryClient.invalidateQueries({ queryKey: CLIENTS_QUERY_KEY })
     },
   })
@@ -98,6 +101,7 @@ export function useUpdateClientAddress() {
         },
       ),
     onSuccess: () => {
+      notifySuccess("feedback.clientAddressUpdated")
       void queryClient.invalidateQueries({ queryKey: CLIENTS_QUERY_KEY })
     },
   })

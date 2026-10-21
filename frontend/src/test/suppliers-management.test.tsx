@@ -1,12 +1,30 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { act, render, screen, waitFor, within } from "@testing-library/react"
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { UserEvent } from "@testing-library/user-event"
+import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
 
 import { SuppliersListPage } from "@/pages/suppliers/SuppliersListPage"
+import type {
+  SupplierAddressFormValues,
+  SupplierFormValues,
+} from "@/pages/suppliers/supplierFormSchema"
+import {
+  useCreateSupplier,
+  useDeleteSupplier,
+  useUpdateSupplierAddress,
+} from "@/pages/suppliers/useSupplierMutations"
 import {
   AUTH_TOKEN_STORAGE_KEY,
   setUnauthorizedHandler,
@@ -1091,5 +1109,181 @@ describe("SuppliersListPage supplier address editing", () => {
     expect(
       within(dialog).getByRole("button", { name: "Отмена" }),
     ).toBeInTheDocument()
+  })
+})
+
+describe("SuppliersListPage supplier notifications", () => {
+  let successSpy: ReturnType<typeof vi.spyOn>
+
+  const NOTIFICATION_FORM_VALUES: SupplierFormValues = {
+    name: FORM_VALUES.name,
+    phone: FORM_VALUES.phone,
+    address: {
+      country: FORM_VALUES.country,
+      city: FORM_VALUES.city,
+      street: FORM_VALUES.street,
+    },
+  }
+
+  const NOTIFICATION_ADDRESS_VALUES: SupplierAddressFormValues = {
+    country: FORM_VALUES.country,
+    city: FORM_VALUES.city,
+    street: FORM_VALUES.street,
+  }
+
+  beforeEach(async () => {
+    localStorage.clear()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+    successSpy = vi.spyOn(toast, "success")
+
+    await act(async () => {
+      await i18n.changeLanguage("en")
+    })
+  })
+
+  afterEach(() => {
+    setUnauthorizedHandler(null)
+    toast.dismiss()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  function createWrapper() {
+    const queryClient = createTestQueryClient()
+
+    return function Wrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      )
+    }
+  }
+
+  it("notifies about a created supplier", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, CREATED_SUPPLIER))
+    const { result } = renderHook(() => useCreateSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Supplier created")
+  })
+
+  it("notifies about a deleted supplier", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useDeleteSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync("1")
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Supplier deleted")
+  })
+
+  it("notifies about an updated supplier address", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useUpdateSupplierAddress(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        supplierId: "1",
+        address: NOTIFICATION_ADDRESS_VALUES,
+      })
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Supplier address updated")
+  })
+
+  it("shows a separate notification for every successful mutation", async () => {
+    fetchMock.mockImplementation(() =>
+      Promise.resolve(jsonResponse(201, CREATED_SUPPLIER)),
+    )
+    const { result } = renderHook(() => useCreateSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it("does not notify when the supplier is used by products", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(400, { message: "supplier is used by products" }),
+    )
+    const { result } = renderHook(() => useDeleteSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(result.current.mutateAsync("1")).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
+  })
+
+  it.each([400, 404, 500, 503])(
+    "does not notify when the create request fails with %i",
+    async (status) => {
+      fetchMock.mockResolvedValue(jsonResponse(status, { message: "failed" }))
+      const { result } = renderHook(() => useCreateSupplier(), {
+        wrapper: createWrapper(),
+      })
+
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+        ).rejects.toThrow()
+      })
+
+      expect(successSpy).not.toHaveBeenCalled()
+    },
+  )
+
+  it("does not notify when the request fails without a response", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
+    const { result } = renderHook(() => useCreateSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
+  })
+
+  it("does not notify when the session ends with 401", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(401, { message: "expired" }))
+    const { result } = renderHook(() => useCreateSupplier(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
   })
 })

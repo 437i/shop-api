@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { ProductFormValues } from "@/pages/products/productFormSchema"
 import { ApiError, NetworkError, apiClient } from "@/shared/api/client"
 import type { components } from "@/shared/api/generated/schema"
+import { notifySuccess } from "@/shared/feedback/notifications"
 
 type CreateProductRequest =
   components["schemas"]["internal_product.CreateRequest"]
@@ -60,6 +61,7 @@ export function useCreateProduct() {
         supplier_id: values.supplierId,
       }),
     onSuccess: () => {
+      notifySuccess("feedback.productCreated")
       void queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })
@@ -72,6 +74,7 @@ export function useDeleteProduct() {
     mutationFn: (productId: string) =>
       apiClient.delete<void>(`/products/${productId}`),
     onSuccess: () => {
+      notifySuccess("feedback.productDeleted")
       void queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })
@@ -92,6 +95,7 @@ export function useDecreaseStock() {
         { amount: Number(amount) },
       ),
     onSuccess: () => {
+      notifySuccess("feedback.stockDecreased")
       void queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
     },
   })

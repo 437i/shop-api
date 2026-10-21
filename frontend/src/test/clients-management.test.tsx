@@ -3,17 +3,29 @@ import {
   act,
   fireEvent,
   render,
+  renderHook,
   screen,
   waitFor,
   within,
 } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import type { UserEvent } from "@testing-library/user-event"
+import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
 
 import { ClientsListPage } from "@/pages/clients/ClientsListPage"
+import type {
+  ClientAddressFormValues,
+  ClientFormValues,
+} from "@/pages/clients/clientFormSchema"
+import {
+  useCreateClient,
+  useDeleteClient,
+  useUpdateClientAddress,
+} from "@/pages/clients/useClientMutations"
 import {
   AUTH_TOKEN_STORAGE_KEY,
   setUnauthorizedHandler,
@@ -1063,5 +1075,168 @@ describe("ClientsListPage client address editing", () => {
     expect(
       within(dialog).getByRole("button", { name: "Отмена" }),
     ).toBeInTheDocument()
+  })
+})
+
+describe("ClientsListPage client notifications", () => {
+  let successSpy: ReturnType<typeof vi.spyOn>
+
+  const NOTIFICATION_FORM_VALUES: ClientFormValues = {
+    name: FORM_VALUES.name,
+    surname: FORM_VALUES.surname,
+    birthday: FORM_VALUES.birthday,
+    gender: "m",
+    address: {
+      country: FORM_VALUES.country,
+      city: FORM_VALUES.city,
+      street: FORM_VALUES.street,
+    },
+  }
+
+  const NOTIFICATION_ADDRESS_VALUES: ClientAddressFormValues = {
+    country: FORM_VALUES.country,
+    city: FORM_VALUES.city,
+    street: FORM_VALUES.street,
+  }
+
+  beforeEach(async () => {
+    localStorage.clear()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+    successSpy = vi.spyOn(toast, "success")
+
+    await act(async () => {
+      await i18n.changeLanguage("en")
+    })
+  })
+
+  afterEach(() => {
+    setUnauthorizedHandler(null)
+    toast.dismiss()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  function createWrapper() {
+    const queryClient = createTestQueryClient()
+
+    return function Wrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      )
+    }
+  }
+
+  it("notifies about a created client", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, CREATED_CLIENT))
+    const { result } = renderHook(() => useCreateClient(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Client created")
+  })
+
+  it("notifies about a deleted client", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useDeleteClient(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync("1")
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Client deleted")
+  })
+
+  it("notifies about an updated client address", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { result } = renderHook(() => useUpdateClientAddress(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        clientId: "1",
+        address: NOTIFICATION_ADDRESS_VALUES,
+      })
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(1)
+    expect(successSpy).toHaveBeenCalledWith("Client address updated")
+  })
+
+  it("shows a separate notification for every successful mutation", async () => {
+    fetchMock.mockImplementation(() =>
+      Promise.resolve(jsonResponse(201, CREATED_CLIENT)),
+    )
+    const { result } = renderHook(() => useCreateClient(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+    await act(async () => {
+      await result.current.mutateAsync(NOTIFICATION_FORM_VALUES)
+    })
+
+    expect(successSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([400, 404, 500, 503])(
+    "does not notify when the create request fails with %i",
+    async (status) => {
+      fetchMock.mockResolvedValue(jsonResponse(status, { message: "failed" }))
+      const { result } = renderHook(() => useCreateClient(), {
+        wrapper: createWrapper(),
+      })
+
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+        ).rejects.toThrow()
+      })
+
+      expect(successSpy).not.toHaveBeenCalled()
+    },
+  )
+
+  it("does not notify when the request fails without a response", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
+    const { result } = renderHook(() => useCreateClient(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
+  })
+
+  it("does not notify when the session ends with 401", async () => {
+    fetchMock.mockResolvedValue(jsonResponse(401, { message: "expired" }))
+    const { result } = renderHook(() => useCreateClient(), {
+      wrapper: createWrapper(),
+    })
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(NOTIFICATION_FORM_VALUES),
+      ).rejects.toThrow()
+    })
+
+    expect(successSpy).not.toHaveBeenCalled()
   })
 })
