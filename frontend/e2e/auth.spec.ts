@@ -221,6 +221,36 @@ test("should reset the password with the mocked api and show the log message", a
   ).toBeVisible()
 })
 
+test("should keep the link to the login page after a successful password reset", async ({
+  page,
+}) => {
+  await mockApi(page)
+
+  await page.goto("/auth/reset")
+  await page.getByLabel("Email", { exact: true }).fill("admin@example.com")
+  // The link was moved out of the form, so the implicit submission by Enter
+  // has to keep working.
+  await page.getByLabel("Email", { exact: true }).press("Enter")
+
+  await expect(
+    page.getByText(
+      "The password has been reset. The new password is written to the authentication service log.",
+    ),
+  ).toBeVisible()
+  await expect(
+    page.getByText(
+      "The current password no longer works. Sign in with the new password from the log.",
+    ),
+  ).toBeVisible()
+
+  await page.getByRole("link", { name: "Back to sign in", exact: true }).click()
+
+  await expect(page).toHaveURL(/\/auth\/login$/)
+  await expect(
+    page.getByRole("button", { name: "Sign In", exact: true }),
+  ).toBeVisible()
+})
+
 test("should change the password with the mocked api and keep the session", async ({
   page,
 }) => {

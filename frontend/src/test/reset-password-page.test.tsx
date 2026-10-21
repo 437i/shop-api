@@ -32,6 +32,7 @@ function renderResetPasswordPage() {
   const router = createMemoryRouter(
     [
       { path: "/auth/reset", element: <ResetPasswordPage /> },
+      { path: "/auth/login", element: <p>Login page</p> },
       { path: "/clients", element: <p>Clients page</p> },
     ],
     { initialEntries: ["/auth/reset"] },
@@ -117,6 +118,21 @@ describe("ResetPasswordPage", () => {
     expect(
       screen.queryByRole("button", { name: "Reset password" }),
     ).not.toBeInTheDocument()
+  })
+
+  it("keeps the link back to the login page after a successful reset", async () => {
+    postMock.mockResolvedValue(undefined)
+    const router = renderResetPasswordPage()
+
+    await submitEmail("user@example.com")
+
+    const link = await screen.findByRole("link", { name: "Back to sign in" })
+    expect(link).toHaveAttribute("href", "/auth/login")
+
+    await userEvent.setup().click(link)
+
+    expect(router.state.location.pathname).toBe("/auth/login")
+    expect(screen.getByText("Login page")).toBeInTheDocument()
   })
 
   it("gives the same result for an unknown email because the api answers 204 either way", async () => {
