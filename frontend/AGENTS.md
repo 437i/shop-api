@@ -25,6 +25,11 @@
 - Upload images as application/octet-stream.
 - Never call Java gRPC endpoints from the browser.
 
+### Authentication
+- The frontend uses the Go HTTP API for authentication. It must never connect directly to the Java gRPC service or its PostgreSQL database.
+- The default local Docker Compose stack uses real Java authentication through the Go API. Do not assume that the legacy Go development mock is active or that tokens created by it are valid against the live backend.
+- Isolated frontend tests may mock the Go HTTP API at the established API-client boundary. Integration and end-to-end tests must make it explicit whether they exercise mocked API responses or the live authentication flow.
+
 ## UI
 - The default UI language is English; Russian must be supported.
 - Use consistent spacing, typography, colors and component variants.
