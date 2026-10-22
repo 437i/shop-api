@@ -271,6 +271,121 @@ describe("apiClient", () => {
     })
   })
 
+  describe("binary operations", () => {
+    const IMAGE_BYTES = "image-bytes"
+
+    function imageBlob(): Blob {
+      return new Blob([IMAGE_BYTES], { type: "application/octet-stream" })
+    }
+
+    it("sends a binary POST with the file body and the octet-stream content type", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      stubJsonResponse(201, { id: "image-id" })
+      const file = imageBlob()
+
+      const response = await apiClient.postBinary<{ id: string }>(
+        "/products/1/image",
+        file,
+      )
+
+      expect(response).toEqual({ id: "image-id" })
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe("/api/v1/products/1/image")
+      expect(init).toMatchObject({ method: "POST" })
+      expect(init?.headers).toEqual({
+        "Content-Type": "application/octet-stream",
+        Authorization: `Bearer ${TOKEN}`,
+      })
+      expect(init?.body).toBe(file)
+      expect(await (init?.body as Blob).text()).toBe(IMAGE_BYTES)
+    })
+
+    it("sends a binary PUT with the file body and the octet-stream content type", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+      const file = imageBlob()
+
+      await apiClient.putBinary("/images/image-id", file)
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe("/api/v1/images/image-id")
+      expect(init).toMatchObject({ method: "PUT" })
+      expect(init?.headers).toEqual({
+        "Content-Type": "application/octet-stream",
+        Authorization: `Bearer ${TOKEN}`,
+      })
+      expect(init?.body).toBe(file)
+      expect(await (init?.body as Blob).text()).toBe(IMAGE_BYTES)
+    })
+
+    it("reads a binary GET response as a Blob", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      fetchMock.mockResolvedValue(
+        new Response(IMAGE_BYTES, {
+          status: 200,
+          headers: { "Content-Type": "application/octet-stream" },
+        }),
+      )
+
+      const response = await apiClient.getBinary("/products/1/image")
+
+      expect(response).toBeInstanceOf(Blob)
+      expect(await response.text()).toBe(IMAGE_BYTES)
+
+      const [url, init] = fetchMock.mock.calls[0]!
+      expect(url).toBe("/api/v1/products/1/image")
+      expect(init).toMatchObject({ method: "GET" })
+      expect(init?.headers).toEqual({
+        Accept: "application/octet-stream",
+        Authorization: `Bearer ${TOKEN}`,
+      })
+    })
+
+    it("returns undefined for a 204 binary response", async () => {
+      fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+
+      await expect(
+        apiClient.putBinary("/images/image-id", imageBlob()),
+      ).resolves.toBeUndefined()
+    })
+
+    it("resets the session for a 401 binary response", async () => {
+      localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+      const onUnauthorized = vi.fn()
+      setUnauthorizedHandler(onUnauthorized)
+      stubJsonResponse(401, { error: "invalid or expired token" })
+
+      await expect(
+        apiClient.postBinary("/products/1/image", imageBlob()),
+      ).rejects.toMatchObject({ status: 401 })
+
+      expect(localStorage.getItem(AUTH_TOKEN_STORAGE_KEY)).toBeNull()
+      expect(onUnauthorized).toHaveBeenCalledTimes(1)
+    })
+
+    it("throws an ApiError with the ErrorResponse message of a binary request", async () => {
+      stubJsonResponse(400, { message: "empty image" })
+
+      await expect(
+        apiClient.postBinary("/products/1/image", imageBlob()),
+      ).rejects.toMatchObject({
+        status: 400,
+        responseMessage: "empty image",
+        message: "empty image",
+      })
+    })
+
+    it("throws a NetworkError when a binary request fails", async () => {
+      fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))
+
+      await expect(
+        apiClient.getBinary("/products/1/image"),
+      ).rejects.toBeInstanceOf(NetworkError)
+    })
+  })
+
   describe("network failures", () => {
     it("throws a NetworkError when fetch rejects", async () => {
       fetchMock.mockRejectedValue(new TypeError("Failed to fetch"))

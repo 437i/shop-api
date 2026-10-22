@@ -77,6 +77,7 @@
     "notFound": "Client not found",
     "supplierNotFound": "Supplier not found",
     "productNotFound": "Product not found",
+    "imageNotFound": "Image not found",
     "insufficientStock": "Insufficient stock",
     "invalidCredentials": "Invalid credentials",
     "userAlreadyExists": "User already exists",
@@ -95,7 +96,10 @@
     "supplierAddressUpdated": "Supplier address updated",
     "productCreated": "Product created",
     "productDeleted": "Product deleted",
-    "stockDecreased": "Stock decreased"
+    "stockDecreased": "Stock decreased",
+    "productImageUploaded": "Product image uploaded",
+    "productImageReplaced": "Product image replaced",
+    "productImageDeleted": "Product image deleted"
   },
   "navigation": {
     "clients": "Clients",
@@ -183,6 +187,8 @@
       "addProduct": "Add product",
       "menuLabel": "Actions for {{name}}",
       "decreaseStock": "Decrease stock",
+      "image": "Manage photo",
+      "imageNamed": "Manage the photo of {{name}}",
       "delete": "Delete",
       "deleteNamed": "Delete product {{name}}"
     },
@@ -230,6 +236,30 @@
       "amountRequired": "Amount is required",
       "amountInvalid": "Amount must be a positive integer",
       "amountTooLarge": "Amount must not exceed the current stock"
+    }
+  },
+  "productImages": {
+    "title": "Product photo",
+    "description": "Photo of the product {{name}}.",
+    "loading": "Loading the photo...",
+    "empty": "The product has no photo",
+    "imageAlt": "Photo of the product {{name}}",
+    "fileLabel": "Image file",
+    "upload": "Upload photo",
+    "uploading": "Uploading...",
+    "replace": "Replace photo",
+    "replacing": "Replacing...",
+    "delete": "Delete photo",
+    "deleting": "Deleting...",
+    "deleteTitle": "Delete photo",
+    "deleteDescription": "Are you sure you want to delete the photo of {{name}}? This action cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteNamed": "Delete the photo of {{name}}",
+    "cancel": "Cancel",
+    "validation": {
+      "fileRequired": "Select an image file",
+      "fileEmpty": "The selected file is empty",
+      "fileTooLarge": "The image must not exceed 10 MiB"
     }
   },
   "suppliers": {

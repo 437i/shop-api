@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ProductImageDialog } from "@/features/product-images/ProductImageDialog"
 import { CreateProductDialog } from "@/pages/products/CreateProductDialog"
 import { DecreaseStockDialog } from "@/pages/products/DecreaseStockDialog"
 import { DeleteProductDialog } from "@/pages/products/DeleteProductDialog"
@@ -96,12 +97,14 @@ interface ProductsTableProps {
   products: ProductListResponse[]
   onDecreaseStock: (product: ProductListResponse) => void
   onDelete: (product: ProductListResponse) => void
+  onImage: (product: ProductListResponse) => void
 }
 
 function ProductsTable({
   products,
   onDecreaseStock,
   onDelete,
+  onImage,
 }: ProductsTableProps) {
   const { t } = useTranslation()
 
@@ -149,6 +152,14 @@ function ProductsTable({
                         {t("products.actions.decreaseStock")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
+                        aria-label={t("products.actions.imageNamed", {
+                          name: product.name ?? "",
+                        })}
+                        onClick={() => onImage(product)}
+                      >
+                        {t("products.actions.image")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         variant="destructive"
                         aria-label={t("products.actions.deleteNamed", {
                           name: product.name ?? "",
@@ -176,6 +187,10 @@ export function ProductsListPage() {
     useState<ProductListResponse | null>(null)
   const [productToDelete, setProductToDelete] =
     useState<ProductListResponse | null>(null)
+  const [productToImage, setProductToImage] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   const [listError, setListError] = useState<unknown>(null)
 
   const productsQuery = useQuery({
@@ -227,6 +242,13 @@ export function ProductsListPage() {
           products={productsQuery.data}
           onDecreaseStock={setProductToDecreaseStock}
           onDelete={setProductToDelete}
+          onImage={(product) => {
+            if (!product.id) {
+              return
+            }
+
+            setProductToImage({ id: product.id, name: product.name ?? "" })
+          }}
         />
       ) : null}
       <CreateProductDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
@@ -243,6 +265,16 @@ export function ProductsListPage() {
         onOpenChange={(open) => {
           if (!open) {
             setProductToDelete(null)
+          }
+        }}
+      />
+      <ProductImageDialog
+        key={productToImage?.id ?? "closed"}
+        productId={productToImage?.id ?? null}
+        productName={productToImage?.name ?? ""}
+        onOpenChange={(open) => {
+          if (!open) {
+            setProductToImage(null)
           }
         }}
       />

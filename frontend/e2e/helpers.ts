@@ -36,6 +36,7 @@ export interface MockProduct {
   category?: { id: string; name: string }
   price?: string
   available_stock?: number
+  image_id?: string
 }
 
 export const MOCK_PRODUCTS: MockProduct[] = [
@@ -161,7 +162,15 @@ function supplierIdFromUrl(url: string): string {
 }
 
 function productIdFromUrl(url: string): string {
-  const match = /\/products\/([^/]+)(?:\/stock)?$/.exec(new URL(url).pathname)
+  const match = /\/products\/([^/]+)(?:\/(?:stock|image))?$/.exec(
+    new URL(url).pathname,
+  )
+
+  return match?.[1] ? decodeURIComponent(match[1]) : ""
+}
+
+function imageIdFromUrl(url: string): string {
+  const match = /\/images\/([^/]+)$/.exec(new URL(url).pathname)
 
   return match?.[1] ? decodeURIComponent(match[1]) : ""
 }
@@ -205,6 +214,7 @@ export async function mockApi(
   const clients = structuredClone(MOCK_CLIENTS)
   const suppliers = structuredClone(MOCK_SUPPLIERS)
   const products = structuredClone(options.productsList ?? MOCK_PRODUCTS)
+  const images = new Map<string, { productId: string; bytes: Buffer }>()
   const deleteRequests: string[] = []
   const deleteSupplierRequests: string[] = []
   const deleteProductRequests: string[] = []
@@ -546,6 +556,98 @@ export async function mockApi(
     }
 
     return route.fulfill({ status: 204 })
+  })
+
+  await page.route(/\/api\/v1\/products\/[^/]+\/image$/, (route) => {
+    const request = route.request()
+    const method = request.method()
+    const productId = productIdFromUrl(request.url())
+
+    if (method === "GET") {
+      const image = [...images.values()].find(
+        (entry) => entry.productId === productId,
+      )
+
+      if (!image) {
+        return fulfillError(route, { status: 404, message: "image not found" })
+      }
+
+      return route.fulfill({
+        status: 200,
+        contentType: "application/octet-stream",
+        body: image.bytes,
+      })
+    }
+
+    if (method === "POST") {
+      const product = products.find((entry) => entry.id === productId)
+
+      if (!product) {
+        return fulfillError(route, { status: 404, message: "product not found" })
+      }
+
+      const bytes = request.postDataBuffer() ?? Buffer.alloc(0)
+
+      if (bytes.length === 0) {
+        return fulfillError(route, { status: 400, message: "empty image" })
+      }
+
+      const imageId = crypto.randomUUID()
+      images.set(imageId, { productId, bytes })
+      product.image_id = imageId
+
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ id: imageId }),
+      })
+    }
+
+    return route.fallback()
+  })
+
+  await page.route(/\/api\/v1\/images\/[^/]+$/, (route) => {
+    const request = route.request()
+    const method = request.method()
+    const imageId = imageIdFromUrl(request.url())
+
+    if (method === "PUT") {
+      const image = images.get(imageId)
+
+      if (!image) {
+        return fulfillError(route, { status: 404, message: "image not found" })
+      }
+
+      const bytes = request.postDataBuffer() ?? Buffer.alloc(0)
+
+      if (bytes.length === 0) {
+        return fulfillError(route, { status: 400, message: "empty image" })
+      }
+
+      image.bytes = bytes
+
+      return route.fulfill({ status: 204 })
+    }
+
+    if (method === "DELETE") {
+      const image = images.get(imageId)
+
+      if (!image) {
+        return fulfillError(route, { status: 404, message: "image not found" })
+      }
+
+      images.delete(imageId)
+
+      const product = products.find((entry) => entry.id === image.productId)
+
+      if (product) {
+        product.image_id = undefined
+      }
+
+      return route.fulfill({ status: 204 })
+    }
+
+    return route.fallback()
   })
 
   return {

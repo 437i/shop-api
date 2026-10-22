@@ -2,6 +2,9 @@ const API_BASE_URL = "/api/v1"
 
 const AUTH_PATH = "/auth"
 
+const JSON_CONTENT_TYPE = "application/json"
+const BINARY_CONTENT_TYPE = "application/octet-stream"
+
 export const AUTH_TOKEN_STORAGE_KEY = "auth_token"
 
 export type QueryParams = Record<
@@ -74,11 +77,9 @@ function buildUrl(path: string, params?: QueryParams): string {
   return query ? `${url}?${query}` : url
 }
 
-function buildHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  }
-
+function withAuthorization(
+  headers: Record<string, string>,
+): Record<string, string> {
   const token = getAuthToken()
 
   if (token) {
@@ -86,6 +87,18 @@ function buildHeaders(): Record<string, string> {
   }
 
   return headers
+}
+
+function buildHeaders(): Record<string, string> {
+  return withAuthorization({ "Content-Type": JSON_CONTENT_TYPE })
+}
+
+function buildBinaryBodyHeaders(): Record<string, string> {
+  return withAuthorization({ "Content-Type": BINARY_CONTENT_TYPE })
+}
+
+function buildBinaryReadHeaders(): Record<string, string> {
+  return withAuthorization({ Accept: BINARY_CONTENT_TYPE })
 }
 
 function isErrorResponse(value: unknown): value is ErrorResponse {
@@ -115,10 +128,14 @@ function handleUnauthorized(path: string): void {
   unauthorizedHandler?.()
 }
 
+type ResponseReader<TResponse> = (response: Response) => Promise<TResponse>
+
 async function request<TResponse>(
   path: string,
   params: QueryParams | undefined,
   init: RequestInit,
+  readResponse: ResponseReader<TResponse> = (response) =>
+    response.json() as Promise<TResponse>,
 ): Promise<TResponse> {
   let response: Response
 
@@ -142,7 +159,7 @@ async function request<TResponse>(
     return undefined as TResponse
   }
 
-  return (await response.json()) as TResponse
+  return readResponse(response)
 }
 
 export const apiClient = {
@@ -174,5 +191,33 @@ export const apiClient = {
       method: "DELETE",
       headers: buildHeaders(),
     })
+  },
+
+  postBinary<TResponse>(path: string, body: Blob): Promise<TResponse> {
+    return request<TResponse>(path, undefined, {
+      method: "POST",
+      headers: buildBinaryBodyHeaders(),
+      body,
+    })
+  },
+
+  putBinary<TResponse>(path: string, body: Blob): Promise<TResponse> {
+    return request<TResponse>(path, undefined, {
+      method: "PUT",
+      headers: buildBinaryBodyHeaders(),
+      body,
+    })
+  },
+
+  getBinary(path: string): Promise<Blob> {
+    return request<Blob>(
+      path,
+      undefined,
+      {
+        method: "GET",
+        headers: buildBinaryReadHeaders(),
+      },
+      (response) => response.blob(),
+    )
   },
 }

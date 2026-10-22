@@ -77,6 +77,7 @@
     "notFound": "Клиент не найден",
     "supplierNotFound": "Поставщик не найден",
     "productNotFound": "Товар не найден",
+    "imageNotFound": "Изображение не найдено",
     "insufficientStock": "Недостаточно товара на складе",
     "invalidCredentials": "Неверные учётные данные",
     "userAlreadyExists": "Пользователь с таким email уже существует",
@@ -95,7 +96,10 @@
     "supplierAddressUpdated": "Адрес поставщика обновлён",
     "productCreated": "Товар создан",
     "productDeleted": "Товар удалён",
-    "stockDecreased": "Остаток уменьшен"
+    "stockDecreased": "Остаток уменьшен",
+    "productImageUploaded": "Фотография товара загружена",
+    "productImageReplaced": "Фотография товара заменена",
+    "productImageDeleted": "Фотография товара удалена"
   },
   "navigation": {
     "clients": "Клиенты",
@@ -183,6 +187,8 @@
       "addProduct": "Добавить товар",
       "menuLabel": "Действия: {{name}}",
       "decreaseStock": "Уменьшить остаток",
+      "image": "Управление фотографией",
+      "imageNamed": "Управление фотографией товара {{name}}",
       "delete": "Удалить",
       "deleteNamed": "Удалить товар {{name}}"
     },
@@ -230,6 +236,30 @@
       "amountRequired": "Укажите количество",
       "amountInvalid": "Количество должно быть целым положительным числом",
       "amountTooLarge": "Количество не должно превышать текущий остаток"
+    }
+  },
+  "productImages": {
+    "title": "Фотография товара",
+    "description": "Фотография товара {{name}}.",
+    "loading": "Загрузка фотографии...",
+    "empty": "У товара нет фотографии",
+    "imageAlt": "Фотография товара {{name}}",
+    "fileLabel": "Файл изображения",
+    "upload": "Загрузить фотографию",
+    "uploading": "Загрузка...",
+    "replace": "Заменить фотографию",
+    "replacing": "Замена...",
+    "delete": "Удалить фотографию",
+    "deleting": "Удаление...",
+    "deleteTitle": "Удалить фотографию",
+    "deleteDescription": "Удалить фотографию товара {{name}}? Это действие нельзя отменить.",
+    "deleteConfirm": "Удалить",
+    "deleteNamed": "Удалить фотографию товара {{name}}",
+    "cancel": "Отмена",
+    "validation": {
+      "fileRequired": "Выберите файл изображения",
+      "fileEmpty": "Выбранный файл пуст",
+      "fileTooLarge": "Размер изображения не должен превышать 10 МиБ"
     }
   },
   "suppliers": {
