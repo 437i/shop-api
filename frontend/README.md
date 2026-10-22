@@ -38,6 +38,26 @@ The stack does not enable the mock. To work without the Java service, switch the
 
 The local stack authenticates users for real, but it does not separate access: every account that registers through `POST /api/v1/register` receives a token that grants the same administrative operations over clients, products, suppliers and images, because the Go API and the Java authentication service define no user access levels and no authorization checks. The stack is a local development environment and must not be deployed publicly. Before any public deployment the access model has to be changed in a separate change: authorization checks belong on the backend, and restricting registration alone would not create an access model.
 
+## Live e2e run against the local stack (opt-in)
+
+The regular e2e suite mocks the API. The live run exercises the real path — browser → Go API → Java auth → databases — and is therefore **not** part of `npm run test`, `npm run test:e2e`, `npm run check` or the common CI run: it needs the local Compose stack and it writes test data into the local databases.
+
+```sh
+npm run test:e2e:live
+```
+
+Prerequisite: the local stack must be running (`docker compose up -d` in the repository root). The run starts with a readiness check — the expected local Compose project, the Go API, and the Go API → gRPC → Java auth chain — and stops before creating any test data if the stack is not ready. The Go API address must be local (a loopback host) and its port must match the published port of the local `api` service: a foreign hostname, a foreign IP or another port is rejected before a single request is sent. The same check is available on its own:
+
+```sh
+npm run live:preflight
+```
+
+Each run gets its own identifier, for example `e2e-live-20261022T134643Z-bve2p6`. It is passed to the specs through the `E2E_LIVE_RUNID` environment variable and is used as the prefix of every test entity, so leftovers of an interrupted run are easy to find and to remove by hand.
+
+Test data created by a run: a test user per scenario (plus one registered through the UI form), a supplier, a product and a client, all named with the run prefix. The cleanup is registered in the Playwright teardown and therefore runs even when a scenario fails: the entities are deleted through the Go API in the order product → client → supplier, and the test users are deleted from the local `auth-postgres` by the run prefix. Nothing outside the current run is touched.
+
+The live run never manages the stack lifecycle and never deletes permanent data: `docker compose down -v`, `docker volume rm`, `docker compose down` and `prune` are forbidden, and the persistent volumes `postgres_data`, `pgadmin_data` and `auth_postgres_data` are out of scope for the run.
+
 ## Template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
