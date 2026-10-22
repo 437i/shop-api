@@ -34,6 +34,10 @@ The default local stack uses the real Java authentication service. `docker-compo
 
 The stack does not enable the mock. To work without the Java service, switch the composition in `api/cmd/api` to `app.MockModule` locally — an explicit local option, not a change of the default composition, which stays `app.Module`. The mock module serves every auth endpoint, including `POST /api/v1/change`; the `502 "Authentication service unavailable"` response belongs to the real auth service path and cannot be triggered by the mock module.
 
+### Access model of the local stack
+
+The local stack authenticates users for real, but it does not separate access: every account that registers through `POST /api/v1/register` receives a token that grants the same administrative operations over clients, products, suppliers and images, because the Go API and the Java authentication service define no user access levels and no authorization checks. The stack is a local development environment and must not be deployed publicly. Before any public deployment the access model has to be changed in a separate change: authorization checks belong on the backend, and restricting registration alone would not create an access model.
+
 ## Template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
