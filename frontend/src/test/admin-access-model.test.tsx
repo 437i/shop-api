@@ -172,6 +172,7 @@ describe("admin access model", () => {
     expect(firstActions).toEqual([
       "Decrease stock",
       "Delete product Liebherr CNel 4313",
+      "Details",
       "Manage the photo of Liebherr CNel 4313",
     ])
     expect(firstActions).toEqual(secondActions)

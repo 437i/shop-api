@@ -10,6 +10,7 @@ import {
 import userEvent from "@testing-library/user-event"
 import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { MemoryRouter } from "react-router"
 import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
@@ -781,7 +782,9 @@ describe("product images feature", () => {
       render(
         <QueryClientProvider client={queryClient}>
           <I18nextProvider i18n={i18n}>
-            <ProductsListPage />
+            <MemoryRouter initialEntries={["/products"]}>
+              <ProductsListPage />
+            </MemoryRouter>
           </I18nextProvider>
         </QueryClientProvider>,
       )

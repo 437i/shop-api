@@ -3,6 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -95,6 +96,7 @@ function ProductsEmptyState() {
 
 interface ProductsTableProps {
   products: ProductListResponse[]
+  onDetails: (product: ProductListResponse) => void
   onDecreaseStock: (product: ProductListResponse) => void
   onDelete: (product: ProductListResponse) => void
   onImage: (product: ProductListResponse) => void
@@ -102,6 +104,7 @@ interface ProductsTableProps {
 
 function ProductsTable({
   products,
+  onDetails,
   onDecreaseStock,
   onDelete,
   onImage,
@@ -147,6 +150,11 @@ function ProductsTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
+                        onClick={() => onDetails(product)}
+                      >
+                        {t("products.actions.details")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onClick={() => onDecreaseStock(product)}
                       >
                         {t("products.actions.decreaseStock")}
@@ -182,6 +190,7 @@ function ProductsTable({
 
 export function ProductsListPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [productToDecreaseStock, setProductToDecreaseStock] =
     useState<ProductListResponse | null>(null)
@@ -240,6 +249,13 @@ export function ProductsListPage() {
       {productsQuery.isSuccess && productsQuery.data.length > 0 ? (
         <ProductsTable
           products={productsQuery.data}
+          onDetails={(product) => {
+            if (!product.id) {
+              return
+            }
+
+            navigate(`/products/${product.id}`)
+          }}
           onDecreaseStock={setProductToDecreaseStock}
           onDelete={setProductToDelete}
           onImage={(product) => {

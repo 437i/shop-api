@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ProductImage } from "@/features/product-images/ProductImage"
 import { validateImageFile } from "@/features/product-images/imageFileRules"
 import {
   resolveProductImageError,
@@ -48,28 +48,12 @@ export function ProductImageDialog({
   const [file, setFile] = useState<File | null>(null)
   const [validationKey, setValidationKey] = useState<string | null>(null)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-  const imageRef = useRef<HTMLImageElement | null>(null)
 
   const { image, isLoading, errorMessage } = useProductImage(productId, open)
   const currentImageId = useCurrentProductImageId(productId)
   const upload = useUploadProductImage()
   const replace = useReplaceProductImage(productId)
   const remove = useDeleteProductImage(productId)
-
-  useEffect(() => {
-    const element = imageRef.current
-
-    if (!image || !element) {
-      return
-    }
-
-    const url = URL.createObjectURL(image)
-    element.src = url
-
-    return () => {
-      URL.revokeObjectURL(url)
-    }
-  }, [image])
 
   const isBusy = upload.isPending || replace.isPending || remove.isPending
 
@@ -172,19 +156,12 @@ export function ProductImageDialog({
             </p>
           ) : null}
 
-          {image ? (
-            <img
-              ref={imageRef}
-              alt={t("productImages.imageAlt", { name: productName })}
-              className="max-h-48 w-full rounded-md border object-contain"
-            />
-          ) : null}
-
-          {!isLoading && !image && !errorMessage ? (
-            <p className="text-xs text-muted-foreground">
-              {t("productImages.empty")}
-            </p>
-          ) : null}
+          <ProductImage
+            image={image}
+            productName={productName}
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+          />
 
           {errorMessage ? (
             <p role="alert" className="text-xs text-destructive">

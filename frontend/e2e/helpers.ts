@@ -39,6 +39,8 @@ export interface MockProduct {
   image_id?: string
 }
 
+const PRODUCT_DETAILS_SEED_DATE = "2026-09-12T12:00:00Z"
+
 export const MOCK_PRODUCTS: MockProduct[] = [
   {
     id: "44444444-4444-4444-4444-444444444444",
@@ -192,6 +194,33 @@ async function fulfillError(
     contentType: "application/json",
     body: JSON.stringify(error.message ? { message: error.message } : {}),
   })
+}
+
+function productFullResponse(
+  product: MockProduct,
+  supplier: MockSupplier | undefined,
+): object {
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    available_stock: product.available_stock,
+    image_id: product.image_id,
+    last_update_date: PRODUCT_DETAILS_SEED_DATE,
+    supplier: supplier
+      ? {
+          id: supplier.id,
+          name: supplier.name,
+          phone_number: supplier.phone_number,
+          address: {
+            country: supplier.address.country,
+            city: supplier.address.city,
+            street: supplier.address.street,
+          },
+        }
+      : undefined,
+  }
 }
 
 async function fulfillList(
@@ -538,11 +567,24 @@ export async function mockApi(
   })
 
   await page.route(/\/api\/v1\/products\/[^/]+$/, (route) => {
-    if (route.request().method() !== "DELETE") {
+    const request = route.request()
+    const method = request.method()
+    const id = productIdFromUrl(request.url())
+
+    if (method === "GET") {
+      const product = products.find((entry) => entry.id === id)
+
+      if (!product) {
+        return fulfillError(route, { status: 404, message: "product not found" })
+      }
+
+      return fulfillList(route, productFullResponse(product, suppliers[0]))
+    }
+
+    if (method !== "DELETE") {
       return route.fallback()
     }
 
-    const id = productIdFromUrl(route.request().url())
     deleteProductRequests.push(id)
 
     if (options.deleteProductError) {

@@ -186,6 +186,7 @@
     "actions": {
       "addProduct": "Add product",
       "menuLabel": "Actions for {{name}}",
+      "details": "Details",
       "decreaseStock": "Decrease stock",
       "image": "Manage photo",
       "imageNamed": "Manage the photo of {{name}}",
@@ -237,6 +238,12 @@
       "amountInvalid": "Amount must be a positive integer",
       "amountTooLarge": "Amount must not exceed the current stock"
     }
+  },
+  "productDetails": {
+    "loading": "Loading the product...",
+    "back": "Back to products",
+    "lastUpdate": "Last Update",
+    "supplierTitle": "Supplier"
   },
   "productImages": {
     "title": "Product photo",

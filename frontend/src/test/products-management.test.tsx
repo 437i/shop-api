@@ -11,6 +11,7 @@ import userEvent from "@testing-library/user-event"
 import type { UserEvent } from "@testing-library/user-event"
 import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { MemoryRouter } from "react-router"
 import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
@@ -18,10 +19,15 @@ import type { Mock } from "vitest"
 import { ProductsListPage } from "@/pages/products/ProductsListPage"
 import type { ProductFormValues } from "@/pages/products/productFormSchema"
 import {
+  productDetailsQueryKey,
+  useProductDetails,
+} from "@/pages/products/useProductDetails"
+import {
   useCreateProduct,
   useDecreaseStock,
   useDeleteProduct,
 } from "@/pages/products/useProductMutations"
+import { productImageQueryKey } from "@/features/product-images/useProductImage"
 import {
   AUTH_TOKEN_STORAGE_KEY,
   setUnauthorizedHandler,
@@ -180,7 +186,9 @@ function renderPage(queryClient = createTestQueryClient()) {
   const view = render(
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <ProductsListPage />
+        <MemoryRouter initialEntries={["/products"]}>
+          <ProductsListPage />
+        </MemoryRouter>
       </I18nextProvider>
     </QueryClientProvider>,
   )
@@ -1453,5 +1461,193 @@ describe("ProductsListPage product notifications", () => {
     })
 
     expect(successSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe("ProductsListPage product card cache", () => {
+  const PRODUCT_ID = "1"
+
+  function createHookWrapper(queryClient: QueryClient) {
+    return function Wrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      )
+    }
+  }
+
+  const CARD = {
+    id: PRODUCT_ID,
+    name: "Liebherr CNel 4313",
+    category: { id: "c1", name: "Refrigerators" },
+    price: "999.99",
+    available_stock: 5,
+    last_update_date: "2026-09-12T12:00:00Z",
+    image_id: "image-1",
+    supplier: {
+      id: "s1",
+      name: "Liebherr",
+      phone_number: "+78123456789",
+      address: { country: "Germany", city: "Berlin", street: "Alexanderplatz 2" },
+    },
+  }
+
+  const DECREASED_CARD = { ...CARD, available_stock: 3 }
+  const IMAGE_CACHE_SENTINEL = { url: "object-url" } as unknown
+
+  let fetchMock: Mock<typeof fetch>
+
+  beforeEach(() => {
+    localStorage.clear()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function cardGetCalls() {
+    return fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        methodOf(init) === "GET" && urlOf(input) === "/api/v1/products/1",
+    )
+  }
+
+  function imageGetCalls() {
+    return fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        methodOf(init) === "GET" && urlOf(input) === "/api/v1/products/1/image",
+    )
+  }
+
+  function seedCardCaches(queryClient: QueryClient): void {
+    queryClient.setQueryData(productDetailsQueryKey(PRODUCT_ID), CARD as unknown)
+    queryClient.setQueryData(
+      productImageQueryKey(PRODUCT_ID),
+      IMAGE_CACHE_SENTINEL,
+    )
+  }
+
+  function stubStockDecrease(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const method = methodOf(init)
+
+      if (method === "PATCH") {
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+
+      if (method === "GET" && urlOf(input) === "/api/v1/products/1") {
+        return Promise.resolve(jsonResponse(200, DECREASED_CARD))
+      }
+
+      return Promise.reject(new Error(`Unexpected ${method} request`))
+    })
+  }
+
+  function stubProductDeletion(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const method = methodOf(init)
+
+      if (method === "DELETE") {
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+
+      if (method === "GET" && urlOf(input) === "/api/v1/products/1") {
+        return Promise.resolve(
+          jsonResponse(404, { message: "product not found" }),
+        )
+      }
+
+      return Promise.reject(new Error(`Unexpected ${method} request`))
+    })
+  }
+
+  it("refetches the card on the next open after a stock decrease and leaves the photo cache untouched", async () => {
+    stubStockDecrease()
+    const queryClient = createTestQueryClient()
+    seedCardCaches(queryClient)
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
+
+    const card = renderHook(() => useProductDetails(PRODUCT_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() => expect(card.result.current.isLoading).toBe(false))
+    expect(card.result.current.product).toEqual(CARD)
+    expect(cardGetCalls()).toHaveLength(0)
+
+    card.unmount()
+
+    const { result } = renderHook(() => useDecreaseStock(), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync({ productId: PRODUCT_ID, amount: "2" })
+    })
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["product"] })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["products"] })
+
+    const reopened = renderHook(() => useProductDetails(PRODUCT_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() => expect(reopened.result.current.product).toEqual(DECREASED_CARD))
+
+    expect(cardGetCalls()).toHaveLength(1)
+
+    expect(queryClient.getQueryData(productImageQueryKey(PRODUCT_ID))).toBe(
+      IMAGE_CACHE_SENTINEL,
+    )
+    expect(imageGetCalls()).toHaveLength(0)
+  })
+
+  it("refetches the card on the next open after a product deletion and leaves the photo cache untouched", async () => {
+    stubProductDeletion()
+    const queryClient = createTestQueryClient()
+    seedCardCaches(queryClient)
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
+
+    const card = renderHook(() => useProductDetails(PRODUCT_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() => expect(card.result.current.isLoading).toBe(false))
+    expect(card.result.current.product).toEqual(CARD)
+    expect(cardGetCalls()).toHaveLength(0)
+
+    card.unmount()
+
+    const { result } = renderHook(() => useDeleteProduct(), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(PRODUCT_ID)
+    })
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["product"] })
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["products"] })
+
+    const reopened = renderHook(() => useProductDetails(PRODUCT_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() =>
+      expect(reopened.result.current.product).toBeNull(),
+    )
+
+    expect(cardGetCalls()).toHaveLength(1)
+    expect(
+      queryClient.getQueryState(productDetailsQueryKey(PRODUCT_ID))?.status,
+    ).toBe("success")
+
+    expect(queryClient.getQueryData(productImageQueryKey(PRODUCT_ID))).toBe(
+      IMAGE_CACHE_SENTINEL,
+    )
+    expect(imageGetCalls()).toHaveLength(0)
   })
 })

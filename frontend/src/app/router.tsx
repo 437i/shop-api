@@ -6,6 +6,7 @@ import { LoginPage } from "@/pages/auth/LoginPage"
 import { RegisterPage } from "@/pages/auth/RegisterPage"
 import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage"
 import { ClientsListPage } from "@/pages/clients/ClientsListPage"
+import { ProductDetailsPage } from "@/pages/products/ProductDetailsPage"
 import { ProductsListPage } from "@/pages/products/ProductsListPage"
 import { SuppliersListPage } from "@/pages/suppliers/SuppliersListPage"
 
@@ -28,6 +29,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/clients", element: <ClientsListPage /> },
       { path: "/products", element: <ProductsListPage /> },
+      { path: "/products/:id", element: <ProductDetailsPage /> },
       { path: "/suppliers", element: <SuppliersListPage /> },
     ],
   },

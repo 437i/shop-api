@@ -16,6 +16,8 @@ type TranslateFn = (key: string) => string
 
 export const PRODUCTS_QUERY_KEY = ["products"]
 
+export const PRODUCT_QUERY_KEY = ["product"]
+
 export function resolveProductMutationError(
   error: unknown,
   translate: TranslateFn,
@@ -76,6 +78,7 @@ export function useDeleteProduct() {
     onSuccess: () => {
       notifySuccess("feedback.productDeleted")
       void queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
+      void queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY })
     },
   })
 }
@@ -97,6 +100,7 @@ export function useDecreaseStock() {
     onSuccess: () => {
       notifySuccess("feedback.stockDecreased")
       void queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY })
+      void queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEY })
     },
   })
 }
