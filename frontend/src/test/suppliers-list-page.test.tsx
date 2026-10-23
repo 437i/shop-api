@@ -2,6 +2,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { I18nextProvider } from "react-i18next"
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useParams,
+} from "react-router"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
 
@@ -77,11 +83,22 @@ function createTestQueryClient(): QueryClient {
   })
 }
 
+function SupplierCardMarker() {
+  const { id } = useParams()
+
+  return <div>supplier-card-{id}</div>
+}
+
 function renderPage(queryClient = createTestQueryClient()) {
   const view = render(
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <SuppliersListPage />
+        <MemoryRouter initialEntries={["/suppliers"]}>
+          <Routes>
+            <Route path="/suppliers" element={<SuppliersListPage />} />
+            <Route path="/suppliers/:id" element={<SupplierCardMarker />} />
+          </Routes>
+        </MemoryRouter>
       </I18nextProvider>
     </QueryClientProvider>,
   )
@@ -177,6 +194,46 @@ describe("SuppliersListPage", () => {
       "Berlin",
       "Alexanderplatz 2",
     ])
+  })
+
+  it("shows the details action as the first item in the row actions menu of every supplier", async () => {
+    const user = userEvent.setup()
+    stubJsonResponse(200, SUPPLIERS)
+    renderPage()
+
+    const table = await screen.findByRole("table")
+
+    await user.click(
+      within(table).getByRole("button", {
+        name: "Actions for ООО Моя Оборона",
+      }),
+    )
+    let items = await screen.findAllByRole("menuitem")
+    expect(items[0]).toHaveTextContent("Details")
+
+    await user.keyboard("{Escape}")
+
+    await user.click(
+      await screen.findByRole("button", { name: "Actions for Liebherr" }),
+    )
+    items = await screen.findAllByRole("menuitem")
+    expect(items[0]).toHaveTextContent("Details")
+  })
+
+  it("opens the supplier card of the row supplier when details is activated", async () => {
+    const user = userEvent.setup()
+    stubJsonResponse(200, SUPPLIERS)
+    renderPage()
+
+    await user.click(
+      await screen.findByRole("button", { name: "Actions for Liebherr" }),
+    )
+    await user.click(
+      await screen.findByRole("menuitem", { name: "Details" }),
+    )
+
+    expect(await screen.findByText("supplier-card-2")).toBeInTheDocument()
+    expect(screen.queryByRole("table")).not.toBeInTheDocument()
   })
 
   it.each([

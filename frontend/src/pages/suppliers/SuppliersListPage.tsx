@@ -3,6 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -94,12 +95,14 @@ function SuppliersEmptyState() {
 
 interface SuppliersTableProps {
   suppliers: SupplierResponse[]
+  onDetails: (supplier: SupplierResponse) => void
   onEditAddress: (supplier: SupplierResponse) => void
   onDelete: (supplier: SupplierResponse) => void
 }
 
 function SuppliersTable({
   suppliers,
+  onDetails,
   onEditAddress,
   onDelete,
 }: SuppliersTableProps) {
@@ -146,6 +149,11 @@ function SuppliersTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
+                        onClick={() => onDetails(supplier)}
+                      >
+                        {t("suppliers.actions.details")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
                         onClick={() => onEditAddress(supplier)}
                       >
                         {t("suppliers.actions.editAddress")}
@@ -173,6 +181,7 @@ function SuppliersTable({
 
 export function SuppliersListPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [supplierToEditAddress, setSupplierToEditAddress] =
     useState<SupplierResponse | null>(null)
@@ -227,6 +236,9 @@ export function SuppliersListPage() {
       {suppliersQuery.isSuccess && suppliersQuery.data.length > 0 ? (
         <SuppliersTable
           suppliers={suppliersQuery.data}
+          onDetails={(supplier) => {
+            navigate(`/suppliers/${supplier.id}`)
+          }}
           onEditAddress={setSupplierToEditAddress}
           onDelete={setSupplierToDelete}
         />

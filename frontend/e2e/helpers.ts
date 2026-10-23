@@ -459,11 +459,27 @@ export async function mockApi(
   })
 
   await page.route(/\/api\/v1\/suppliers\/[^/]+$/, (route) => {
-    if (route.request().method() !== "DELETE") {
+    const request = route.request()
+    const method = request.method()
+    const id = supplierIdFromUrl(request.url())
+
+    if (method === "GET") {
+      const supplier = suppliers.find((entry) => entry.id === id)
+
+      if (!supplier) {
+        return fulfillError(route, {
+          status: 404,
+          message: "supplier not found",
+        })
+      }
+
+      return fulfillList(route, supplier)
+    }
+
+    if (method !== "DELETE") {
       return route.fallback()
     }
 
-    const id = supplierIdFromUrl(route.request().url())
     deleteSupplierRequests.push(id)
 
     if (options.deleteSupplierError) {

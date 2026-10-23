@@ -245,6 +245,11 @@
     "lastUpdate": "Последнее обновление",
     "supplierTitle": "Поставщик"
   },
+  "supplierDetails": {
+    "loading": "Загрузка поставщика...",
+    "back": "К списку поставщиков",
+    "addressTitle": "Адрес"
+  },
   "productImages": {
     "title": "Фотография товара",
     "description": "Фотография товара {{name}}.",
@@ -282,6 +287,7 @@
     "actions": {
       "addSupplier": "Добавить поставщика",
       "menuLabel": "Действия: {{name}}",
+      "details": "Карточка",
       "editAddress": "Изменить адрес",
       "delete": "Удалить",
       "deleteNamed": "Удалить поставщика {{name}}"

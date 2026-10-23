@@ -127,6 +127,17 @@ describe("router", () => {
     ).toBeInTheDocument()
   })
 
+  it("redirects unauthenticated access to /suppliers/:id to the login page", async () => {
+    const router = renderApp("/suppliers/1")
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/auth/login"),
+    )
+    expect(
+      await screen.findByRole("button", { name: "Sign In" }),
+    ).toBeInTheDocument()
+  })
+
   it("keeps authenticated access to /products/:id and renders the product card inside the admin layout", async () => {
     localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
     const fetchMock = vi.fn<typeof fetch>().mockImplementation((input, init) => {
@@ -162,6 +173,49 @@ describe("router", () => {
     ).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Back to products" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Products" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Clients" })).toBeInTheDocument()
+  })
+
+  it("keeps authenticated access to /suppliers/:id and renders the supplier card inside the admin layout", async () => {
+    localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, TOKEN)
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation((input, init) => {
+      if (init?.method && init.method !== "GET") {
+        return Promise.reject(new Error(`Unexpected ${init.method} request`))
+      }
+
+      const url = String(input)
+
+      if (url === "/api/v1/suppliers/1") {
+        return Promise.resolve(
+          jsonResponse(200, {
+            id: "1",
+            name: "Liebherr",
+            phone_number: "+78123456789",
+            address: {
+              country: "Germany",
+              city: "Berlin",
+              street: "Alexanderplatz 2",
+            },
+          }),
+        )
+      }
+
+      return Promise.reject(new Error(`Unexpected request: ${url}`))
+    })
+    vi.stubGlobal("fetch", fetchMock)
+
+    const router = renderApp("/suppliers/1")
+
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/suppliers/1"),
+    )
+    expect(
+      (await screen.findAllByText("Liebherr")).length,
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getByRole("button", { name: "Back to suppliers" }),
     ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Products" })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "Clients" })).toBeInTheDocument()

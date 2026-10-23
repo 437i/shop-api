@@ -18,6 +18,8 @@ type TranslateFn = (key: string) => string
 
 export const SUPPLIERS_QUERY_KEY = ["suppliers"]
 
+export const SUPPLIER_QUERY_KEY = ["supplier"]
+
 export function resolveSupplierMutationError(
   error: unknown,
   translate: TranslateFn,
@@ -89,6 +91,7 @@ export function useUpdateSupplierAddress() {
     onSuccess: () => {
       notifySuccess("feedback.supplierAddressUpdated")
       void queryClient.invalidateQueries({ queryKey: SUPPLIERS_QUERY_KEY })
+      void queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEY })
     },
   })
 }
@@ -102,6 +105,7 @@ export function useDeleteSupplier() {
     onSuccess: () => {
       notifySuccess("feedback.supplierDeleted")
       void queryClient.invalidateQueries({ queryKey: SUPPLIERS_QUERY_KEY })
+      void queryClient.invalidateQueries({ queryKey: SUPPLIER_QUERY_KEY })
     },
   })
 }

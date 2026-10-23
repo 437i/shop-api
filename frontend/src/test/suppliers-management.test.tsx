@@ -11,6 +11,7 @@ import userEvent from "@testing-library/user-event"
 import type { UserEvent } from "@testing-library/user-event"
 import type { ReactNode } from "react"
 import { I18nextProvider } from "react-i18next"
+import { MemoryRouter } from "react-router"
 import { toast } from "sonner"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Mock } from "vitest"
@@ -21,10 +22,15 @@ import type {
   SupplierFormValues,
 } from "@/pages/suppliers/supplierFormSchema"
 import {
+  supplierDetailsQueryKey,
+  useSupplierDetails,
+} from "@/pages/suppliers/useSupplierDetails"
+import {
   useCreateSupplier,
   useDeleteSupplier,
   useUpdateSupplierAddress,
 } from "@/pages/suppliers/useSupplierMutations"
+import { productImageQueryKey } from "@/features/product-images/useProductImage"
 import {
   AUTH_TOKEN_STORAGE_KEY,
   setUnauthorizedHandler,
@@ -97,6 +103,10 @@ function methodOf(init?: RequestInit): string {
   return init?.method ?? "GET"
 }
 
+function urlOf(input: RequestInfo | URL): string {
+  return String(input)
+}
+
 function stubSuppliersGet(suppliers: SupplierFixture[] = SUPPLIERS): void {
   fetchMock.mockImplementation((_input, init) => {
     if (methodOf(init) === "GET") {
@@ -124,7 +134,9 @@ function renderPage(queryClient = createTestQueryClient()) {
   const view = render(
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <SuppliersListPage />
+        <MemoryRouter initialEntries={["/suppliers"]}>
+          <SuppliersListPage />
+        </MemoryRouter>
       </I18nextProvider>
     </QueryClientProvider>,
   )
@@ -1285,5 +1297,228 @@ describe("SuppliersListPage supplier notifications", () => {
     })
 
     expect(successSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe("SuppliersListPage supplier card cache", () => {
+  const SUPPLIER_ID = "1"
+  const PRODUCT_ID = "p1"
+
+  const UPDATED_ADDRESS_SUPPLIER: SupplierFixture = {
+    ...SUPPLIERS[0]!,
+    address: {
+      country: "Russia",
+      city: "Moscow",
+      street: "Novy Arbat 5",
+    },
+  }
+
+  const PRODUCT_CARD_CACHE_SENTINEL = { id: PRODUCT_ID } as unknown
+  const PRODUCT_IMAGE_CACHE_SENTINEL = { url: "object-url" } as unknown
+
+  let fetchMock: Mock<typeof fetch>
+
+  beforeEach(() => {
+    localStorage.clear()
+    fetchMock = vi.fn<typeof fetch>()
+    vi.stubGlobal("fetch", fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function createHookWrapper(queryClient: QueryClient) {
+    return function Wrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      )
+    }
+  }
+
+  function cardGetCalls() {
+    return fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        methodOf(init) === "GET" && urlOf(input) === "/api/v1/suppliers/1",
+    )
+  }
+
+  function productGetCalls() {
+    return fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        methodOf(init) === "GET" && urlOf(input).startsWith("/api/v1/products"),
+    )
+  }
+
+  function invalidationCallsForKey(
+    spy: { mock: { calls: unknown[][] } },
+    keyPrefix: string,
+  ): number {
+    return spy.mock.calls.filter(([options]) => {
+      const queryKey = (options as { queryKey?: unknown } | undefined)
+        ?.queryKey
+
+      return Array.isArray(queryKey) && queryKey[0] === keyPrefix
+    }).length
+  }
+
+  function seedCardCaches(queryClient: QueryClient): void {
+    queryClient.setQueryData(
+      supplierDetailsQueryKey(SUPPLIER_ID),
+      SUPPLIERS[0] as unknown,
+    )
+    queryClient.setQueryData(["product", PRODUCT_ID], PRODUCT_CARD_CACHE_SENTINEL)
+    queryClient.setQueryData(
+      productImageQueryKey(PRODUCT_ID),
+      PRODUCT_IMAGE_CACHE_SENTINEL,
+    )
+  }
+
+  function stubAddressPatch(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const method = methodOf(init)
+
+      if (method === "PATCH") {
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+
+      if (method === "GET" && urlOf(input) === "/api/v1/suppliers/1") {
+        return Promise.resolve(jsonResponse(200, UPDATED_ADDRESS_SUPPLIER))
+      }
+
+      return Promise.reject(new Error(`Unexpected ${method} request`))
+    })
+  }
+
+  function stubSupplierDeletion(): void {
+    fetchMock.mockImplementation((input, init) => {
+      const method = methodOf(init)
+
+      if (method === "DELETE") {
+        return Promise.resolve(new Response(null, { status: 204 }))
+      }
+
+      if (method === "GET" && urlOf(input) === "/api/v1/suppliers/1") {
+        return Promise.resolve(
+          jsonResponse(404, { message: "supplier not found" }),
+        )
+      }
+
+      return Promise.reject(new Error(`Unexpected ${method} request`))
+    })
+  }
+
+  it("refetches the card on the next open after an address change and leaves product caches untouched", async () => {
+    stubAddressPatch()
+    const queryClient = createTestQueryClient()
+    seedCardCaches(queryClient)
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
+
+    const card = renderHook(() => useSupplierDetails(SUPPLIER_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() => expect(card.result.current.isLoading).toBe(false))
+    expect(card.result.current.supplier).toEqual(SUPPLIERS[0])
+    expect(cardGetCalls()).toHaveLength(0)
+
+    card.unmount()
+
+    const { result } = renderHook(() => useUpdateSupplierAddress(), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        supplierId: SUPPLIER_ID,
+        address: {
+          country: "Russia",
+          city: "Moscow",
+          street: "Novy Arbat 5",
+        },
+      })
+    })
+
+    expect(
+      queryClient.getQueryState(supplierDetailsQueryKey(SUPPLIER_ID))
+        ?.isInvalidated,
+    ).toBe(true)
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["supplier"] })
+    expect(invalidationCallsForKey(invalidateSpy, "supplier")).toBe(1)
+    expect(invalidationCallsForKey(invalidateSpy, "suppliers")).toBe(1)
+    expect(invalidationCallsForKey(invalidateSpy, "product")).toBe(0)
+
+    const reopened = renderHook(() => useSupplierDetails(SUPPLIER_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() =>
+      expect(reopened.result.current.supplier).toEqual(UPDATED_ADDRESS_SUPPLIER),
+    )
+
+    expect(cardGetCalls()).toHaveLength(1)
+    expect(queryClient.getQueryData(["product", PRODUCT_ID])).toBe(
+      PRODUCT_CARD_CACHE_SENTINEL,
+    )
+    expect(queryClient.getQueryData(productImageQueryKey(PRODUCT_ID))).toBe(
+      PRODUCT_IMAGE_CACHE_SENTINEL,
+    )
+    expect(productGetCalls()).toHaveLength(0)
+  })
+
+  it("refetches the card on the next open after a supplier deletion and leaves product caches untouched", async () => {
+    stubSupplierDeletion()
+    const queryClient = createTestQueryClient()
+    seedCardCaches(queryClient)
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
+
+    const card = renderHook(() => useSupplierDetails(SUPPLIER_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() => expect(card.result.current.isLoading).toBe(false))
+    expect(card.result.current.supplier).toEqual(SUPPLIERS[0])
+    expect(cardGetCalls()).toHaveLength(0)
+
+    card.unmount()
+
+    const { result } = renderHook(() => useDeleteSupplier(), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(SUPPLIER_ID)
+    })
+
+    expect(
+      queryClient.getQueryState(supplierDetailsQueryKey(SUPPLIER_ID))
+        ?.isInvalidated,
+    ).toBe(true)
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["supplier"] })
+    expect(invalidationCallsForKey(invalidateSpy, "supplier")).toBe(1)
+    expect(invalidationCallsForKey(invalidateSpy, "suppliers")).toBe(1)
+    expect(invalidationCallsForKey(invalidateSpy, "product")).toBe(0)
+
+    const reopened = renderHook(() => useSupplierDetails(SUPPLIER_ID), {
+      wrapper: createHookWrapper(queryClient),
+    })
+
+    await waitFor(() =>
+      expect(reopened.result.current.supplier).toBeNull(),
+    )
+
+    expect(
+      queryClient.getQueryState(supplierDetailsQueryKey(SUPPLIER_ID))?.status,
+    ).toBe("success")
+    expect(cardGetCalls()).toHaveLength(1)
+    expect(queryClient.getQueryData(["product", PRODUCT_ID])).toBe(
+      PRODUCT_CARD_CACHE_SENTINEL,
+    )
+    expect(queryClient.getQueryData(productImageQueryKey(PRODUCT_ID))).toBe(
+      PRODUCT_IMAGE_CACHE_SENTINEL,
+    )
+    expect(productGetCalls()).toHaveLength(0)
   })
 })

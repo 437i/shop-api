@@ -9,6 +9,7 @@ import { ClientsListPage } from "@/pages/clients/ClientsListPage"
 import { ProductDetailsPage } from "@/pages/products/ProductDetailsPage"
 import { ProductsListPage } from "@/pages/products/ProductsListPage"
 import { SuppliersListPage } from "@/pages/suppliers/SuppliersListPage"
+import { SupplierDetailsPage } from "@/pages/suppliers/SupplierDetailsPage"
 
 import { AdminLayout } from "./AdminLayout"
 import { ProtectedRoute } from "./ProtectedRoute"
@@ -31,6 +32,7 @@ export const routes: RouteObject[] = [
       { path: "/products", element: <ProductsListPage /> },
       { path: "/products/:id", element: <ProductDetailsPage /> },
       { path: "/suppliers", element: <SuppliersListPage /> },
+      { path: "/suppliers/:id", element: <SupplierDetailsPage /> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },
